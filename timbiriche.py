@@ -5,7 +5,7 @@ from streamlit_autorefresh import st_autorefresh
 st.set_page_config(page_title="Timbiriche: Tutu vs Abuelita", layout="centered")
 
 # Auto-refresco cada 2 segundos para sincronizar
-st_autorefresh(interval=3000, key="datarefresh")
+st_autorefresh(interval=5000, key="datarefresh")
 
 # --- CSS PARA CUADROS Y PUNTOS ---
 st.markdown("""
@@ -13,8 +13,8 @@ st.markdown("""
     .stButton > button { width: 100% !important; height: 35px !important; background-color: #262730 !important; border: 1px solid #444 !important; padding: 0px !important; }
     .punto { font-size: 26px; color: white; text-align: center; line-height: 35px; height: 35px; }
     .linea-h-llena { border-bottom: 6px solid #AAAAAA; width: 100%; height: 18px; }
-    .linea-v-llena { border-left: 6px solid #AAAAAA; height: 50px; margin: auto; width: 4px; }
-    .cuadro-tutu { background-color: #005A87; color: white; text-align: center; font-weight: bold; border-radius: 4px; line-height: 50px; height: 50px; width: 100%; font-size: 20px; }
+    .linea-v-llena { border-left: 6px solid #AAAAAA; height: 50px; margin: auto; width: 6px; }
+    .cuadro-tutu { background-color: #4B3FDC; color: white; text-align: center; font-weight: bold; border-radius: 4px; line-height: 50px; height: 50px; width: 100%; font-size: 20px; }
     .cuadro-abuelita { background-color: #7A2E16; color: white; text-align: center; font-weight: bold; border-radius: 4px; line-height: 50px; height: 50px; width: 100%; font-size: 20px; }
     </style>
     """, unsafe_allow_html=True)
