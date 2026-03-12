@@ -2,26 +2,31 @@ import streamlit as st
 import numpy as np
 from streamlit_autorefresh import st_autorefresh
 
-st.set_page_config(page_title="Timbiriche: Tutu vs Abuelita", layout="centered")
+st.set_page_config(page_title="Timbiriche: Tutu vs Abuelita", layout="wide")
 
-# Auto-refresco
-st_autorefresh(interval=5000, key="datarefresh")
+# Auto-refresco un poco más lento para no interferir tanto con efectos
+st_autorefresh(interval=8000, key="datarefresh")
 
-# --- CSS CORREGIDO PARA ALINEACIÓN ---
+# --- CSS ---
 st.markdown("""
 <style>
-/* Menos separación entre columnas */
+/* Fondo general */
+.stApp {
+    background: linear-gradient(90deg, #050b18 0%, #020814 100%);
+}
+
+/* Menos espacio entre columnas */
 div[data-testid="stHorizontalBlock"] {
     gap: 0.25rem !important;
 }
 
-/* Evitar márgenes raros de markdown */
+/* Quitar márgenes extras de los bloques */
 .element-container {
     margin-top: 0rem !important;
     margin-bottom: 0rem !important;
 }
 
-/* Botones de líneas vacías */
+/* Botones invisibles pero clicables */
 .stButton > button {
     width: 100% !important;
     height: 50px !important;
@@ -31,6 +36,23 @@ div[data-testid="stHorizontalBlock"] {
     padding: 0 !important;
     margin: 0 !important;
     box-shadow: none !important;
+    cursor: pointer !important;
+    border-radius: 6px !important;
+}
+
+/* Resaltar zona clicable */
+.stButton > button:hover {
+    cursor: pointer !important;
+    background-color: rgba(255,255,255,0.06) !important;
+    border-radius: 6px !important;
+}
+
+/* Título principal */
+h1 {
+    text-align: center;
+    color: white !important;
+    font-size: 3rem !important;
+    margin-bottom: 1rem !important;
 }
 
 /* Punto */
@@ -45,7 +67,7 @@ div[data-testid="stHorizontalBlock"] {
     padding: 0;
 }
 
-/* Línea horizontal */
+/* Línea horizontal llena */
 .linea-h-llena {
     height: 50px;
     display: flex;
@@ -58,10 +80,10 @@ div[data-testid="stHorizontalBlock"] {
     content: "";
     display: block;
     width: 100%;
-    border-top: 6px solid #C8C8C8;
+    border-top: 6px solid #CFCFCF;
 }
 
-/* Línea vertical */
+/* Línea vertical llena */
 .linea-v-llena {
     width: 100%;
     height: 50px;
@@ -75,7 +97,7 @@ div[data-testid="stHorizontalBlock"] {
     content: "";
     display: block;
     height: 100%;
-    border-left: 6px solid #C8C8C8;
+    border-left: 6px solid #CFCFCF;
 }
 
 /* Cuadros */
@@ -95,11 +117,24 @@ div[data-testid="stHorizontalBlock"] {
 }
 
 .cuadro-tutu {
-    background-color: #5A4FCF;   /* azul morado */
+    background-color: #5A4FCF;
 }
 
 .cuadro-abuelita {
-    background-color: #7A2E10;
+    background-color: #8A320D;
+}
+
+/* Mensaje final */
+.mensaje-final {
+    text-align: center;
+    font-size: 42px;
+    font-weight: bold;
+    margin: 18px 0 20px 0;
+}
+
+/* Sidebar */
+section[data-testid="stSidebar"] {
+    background-color: rgba(255,255,255,0.03);
 }
 </style>
 """, unsafe_allow_html=True)
@@ -117,14 +152,19 @@ def obtener_juego_compartido():
 
 juego = obtener_juego_compartido()
 
-# --- GLOBOS ---
+# --- SESSION STATE ---
+TOTAL_CUADROS = 16
+
 if "ultimo_conteo" not in st.session_state:
     st.session_state.ultimo_conteo = 0
 
-if len(juego["cuadros"]) > st.session_state.ultimo_conteo:
-    st.balloons()
-    st.session_state.ultimo_conteo = len(juego["cuadros"])
+if "globos_pendientes" not in st.session_state:
+    st.session_state.globos_pendientes = 0
 
+if "fin_festejado" not in st.session_state:
+    st.session_state.fin_festejado = False
+
+# --- LÓGICA ---
 def registrar(tipo, r, c):
     if tipo == "h":
         juego["lineas_h"][r, c] = True
@@ -133,6 +173,7 @@ def registrar(tipo, r, c):
 
     h, v = juego["lineas_h"], juego["lineas_v"]
     formo = False
+    cuadros_nuevos = 0
 
     for row in range(4):
         for col in range(4):
@@ -141,16 +182,83 @@ def registrar(tipo, r, c):
                     juego["cuadros"][(row, col)] = juego["turno"]
                     juego["puntos"][juego["turno"]] += 1
                     formo = True
+                    cuadros_nuevos += 1
+
+    if cuadros_nuevos > 0:
+        st.session_state.globos_pendientes += cuadros_nuevos
 
     if not formo:
         juego["turno"] = "Abuelita" if juego["turno"] == "Tutu" else "Tutu"
 
-# --- INTERFAZ ---
-st.title("🕹️ Timbiriche: Tutu vs Abuelita")
-st.sidebar.write(f"### Turno de: **{juego['turno']}**")
+# --- GLOBOS ESTABLES ---
+conteo_actual = len(juego["cuadros"])
+
+if conteo_actual > st.session_state.ultimo_conteo:
+    nuevos = conteo_actual - st.session_state.ultimo_conteo
+    st.session_state.globos_pendientes += max(0, nuevos - st.session_state.globos_pendientes)
+    st.session_state.ultimo_conteo = conteo_actual
+
+if st.session_state.globos_pendientes > 0:
+    st.balloons()
+    st.session_state.globos_pendientes -= 1
+
+# --- FIN DEL JUEGO ---
+fin_del_juego = len(juego["cuadros"]) == TOTAL_CUADROS
+
+ganador = None
+if fin_del_juego:
+    puntos_tutu = juego["puntos"]["Tutu"]
+    puntos_abuelita = juego["puntos"]["Abuelita"]
+
+    if puntos_tutu > puntos_abuelita:
+        ganador = "Tutu"
+    elif puntos_abuelita > puntos_tutu:
+        ganador = "Abuelita"
+    else:
+        ganador = "Empate"
+
+if fin_del_juego and not st.session_state.fin_festejado:
+    st.snow()
+    st.session_state.fin_festejado = True
+
+# --- SIDEBAR ---
+st.sidebar.write(f"## Turno de: {juego['turno']}")
 st.sidebar.metric("🔵 Tutu", juego["puntos"]["Tutu"])
 st.sidebar.metric("🔴 Abuelita", juego["puntos"]["Abuelita"])
 
+if st.sidebar.button("Reiniciar Juego"):
+    juego["puntos"] = {"Tutu": 0, "Abuelita": 0}
+    juego["turno"] = "Tutu"
+    juego["lineas_h"].fill(False)
+    juego["lineas_v"].fill(False)
+    juego["cuadros"].clear()
+
+    st.session_state.ultimo_conteo = 0
+    st.session_state.globos_pendientes = 0
+    st.session_state.fin_festejado = False
+
+    st.rerun()
+
+# --- TÍTULO ---
+st.title("🕹️ Timbiriche: Tutu vs Abuelita")
+
+# --- MENSAJE FINAL ---
+if fin_del_juego:
+    if ganador == "Empate":
+        st.markdown("""
+        <div class="mensaje-final" style="color:#FFD700;">
+            ⭐ ¡Empate! ⭐
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        color_ganador = "#5A4FCF" if ganador == "Tutu" else "#A1400F"
+        st.markdown(f"""
+        <div class="mensaje-final" style="color:{color_ganador};">
+            ⭐ ¡Ganó {ganador}! ⭐
+        </div>
+        """, unsafe_allow_html=True)
+
+# --- TABLERO ---
 for r in range(5):
     cols = st.columns([0.6, 3, 0.6, 3, 0.6, 3, 0.6, 3, 0.6])
 
@@ -160,9 +268,12 @@ for r in range(5):
         if juego["lineas_h"][r, c]:
             cols[c * 2 + 1].markdown("<div class='linea-h-llena'></div>", unsafe_allow_html=True)
         else:
-            if cols[c * 2 + 1].button(" ", key=f"h{r}{c}"):
-                registrar("h", r, c)
-                st.rerun()
+            if not fin_del_juego:
+                if cols[c * 2 + 1].button(" ", key=f"h{r}{c}"):
+                    registrar("h", r, c)
+                    st.rerun()
+            else:
+                cols[c * 2 + 1].markdown("<div style='height:50px;'></div>", unsafe_allow_html=True)
 
     cols[8].markdown("<div class='punto'>●</div>", unsafe_allow_html=True)
 
@@ -173,9 +284,12 @@ for r in range(5):
             if juego["lineas_v"][r, c]:
                 cols_v[c * 2].markdown("<div class='linea-v-llena'></div>", unsafe_allow_html=True)
             else:
-                if cols_v[c * 2].button(" ", key=f"v{r}{c}"):
-                    registrar("v", r, c)
-                    st.rerun()
+                if not fin_del_juego:
+                    if cols_v[c * 2].button(" ", key=f"v{r}{c}"):
+                        registrar("v", r, c)
+                        st.rerun()
+                else:
+                    cols_v[c * 2].markdown("<div style='height:50px;'></div>", unsafe_allow_html=True)
 
             if c < 4:
                 if (r, c) in juego["cuadros"]:
@@ -186,13 +300,7 @@ for r in range(5):
                         unsafe_allow_html=True
                     )
                 else:
-                    cols_v[c * 2 + 1].markdown("<div style='height:50px;'></div>", unsafe_allow_html=True)
-
-if st.sidebar.button("Reiniciar Juego"):
-    juego["puntos"] = {"Tutu": 0, "Abuelita": 0}
-    juego["turno"] = "Tutu"
-    juego["lineas_h"].fill(False)
-    juego["lineas_v"].fill(False)
-    juego["cuadros"].clear()
-    st.session_state.ultimo_conteo = 0
-    st.rerun()
+                    cols_v[c * 2 + 1].markdown(
+                        "<div style='height:50px;'></div>",
+                        unsafe_allow_html=True
+                    )
