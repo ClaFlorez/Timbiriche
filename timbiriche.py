@@ -1,6 +1,11 @@
 import streamlit as st
 import numpy as np
 import random
+import math
+import wave
+import struct
+import io
+import base64
 from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(page_title="Timbiriche: Tutu vs Abuelita", layout="wide")
@@ -33,25 +38,62 @@ section[data-testid="stSidebar"] {
     border-right: 1px solid rgba(255,255,255,0.06);
 }
 
-/* Botones invisibles clicables */
-.stButton > button {
+/* Wrapper del botón */
+div[data-testid="stButton"] {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+/* Botón totalmente limpio */
+div[data-testid="stButton"] > button {
     width: 100% !important;
     height: 50px !important;
     min-height: 50px !important;
+    display: block !important;
+    background: transparent !important;
     background-color: transparent !important;
     border: none !important;
+    outline: none !important;
     padding: 0 !important;
     margin: 0 !important;
     box-shadow: none !important;
     cursor: pointer !important;
     border-radius: 8px !important;
-    transition: background-color 0.15s ease;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    color: transparent !important;
+    transition: background-color 0.12s ease !important;
 }
 
-/* Hover para que se note la manita */
-.stButton > button:hover {
-    background-color: rgba(255,255,255,0.07) !important;
+/* Quitar texto interno / sombra */
+div[data-testid="stButton"] > button p {
+    color: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 0 !important;
+    font-size: 0 !important;
+}
+
+/* Hover visible pero suave */
+div[data-testid="stButton"] > button:hover {
+    background: rgba(255,255,255,0.06) !important;
+    box-shadow: none !important;
+    outline: none !important;
+    border: none !important;
     cursor: pointer !important;
+}
+
+/* Focus y active sin caja gris */
+div[data-testid="stButton"] > button:focus,
+div[data-testid="stButton"] > button:focus-visible,
+div[data-testid="stButton"] > button:active {
+    background: rgba(255,255,255,0.04) !important;
+    box-shadow: none !important;
+    outline: none !important;
+    border: none !important;
 }
 
 /* Título */
@@ -153,12 +195,6 @@ h1 {
     box-shadow: 0 0 14px rgba(154,61,16,0.22);
 }
 
-/* Botón grande final */
-div[data-testid="stButton"] > button[kind="secondary"],
-div[data-testid="stButton"] > button[kind="primary"] {
-    border-radius: 12px !important;
-}
-
 /* Capa de estrellas/confetti */
 .fx-layer {
     position: fixed;
@@ -193,6 +229,58 @@ div[data-testid="stButton"] > button[kind="primary"] {
 </style>
 """, unsafe_allow_html=True)
 
+# -------------------- AUDIO --------------------
+def crear_tono_wav_base64(frecuencias, duracion=0.22, volumen=0.35, sample_rate=22050):
+    """
+    Genera un WAV corto en memoria y lo devuelve en base64.
+    frecuencias: número o lista/tupla de números
+    """
+    if isinstance(frecuencias, (int, float)):
+        frecuencias = [frecuencias]
+
+    n_samples = int(sample_rate * duracion)
+    buffer = io.BytesIO()
+
+    with wave.open(buffer, "wb") as wav_file:
+        wav_file.setnchannels(1)
+        wav_file.setsampwidth(2)
+        wav_file.setframerate(sample_rate)
+
+        for i in range(n_samples):
+            t = i / sample_rate
+            value = 0.0
+            for f in frecuencias:
+                value += math.sin(2 * math.pi * f * t)
+            value /= max(len(frecuencias), 1)
+
+            # pequeña envolvente para evitar clics
+            env = 1.0
+            fade = int(0.02 * sample_rate)
+            if i < fade:
+                env = i / max(fade, 1)
+            elif i > n_samples - fade:
+                env = max((n_samples - i) / max(fade, 1), 0)
+
+            sample = int(32767 * volumen * env * value)
+            wav_file.writeframes(struct.pack("<h", sample))
+
+    return base64.b64encode(buffer.getvalue()).decode("utf-8")
+
+
+SONIDO_CUADRO = crear_tono_wav_base64([660, 880], duracion=0.18, volumen=0.30)
+SONIDO_VICTORIA = crear_tono_wav_base64([523, 659, 784], duracion=0.55, volumen=0.34)
+
+def reproducir_sonido(base64_audio, autoplay=True):
+    auto = "autoplay" if autoplay else ""
+    st.markdown(
+        f"""
+        <audio {auto} style="display:none;">
+            <source src="data:audio/wav;base64,{base64_audio}" type="audio/wav">
+        </audio>
+        """,
+        unsafe_allow_html=True
+    )
+
 # -------------------- MEMORIA DEL JUEGO --------------------
 @st.cache_resource
 def obtener_juego_compartido():
@@ -220,6 +308,12 @@ if "fin_festejado" not in st.session_state:
 
 if "fx_html" not in st.session_state:
     st.session_state.fx_html = ""
+
+if "sonido_cuadro_pendiente" not in st.session_state:
+    st.session_state.sonido_cuadro_pendiente = 0
+
+if "sonido_victoria_pendiente" not in st.session_state:
+    st.session_state.sonido_victoria_pendiente = False
 
 # -------------------- EFECTOS FINALES --------------------
 def crear_fx_html(cantidad=36):
@@ -267,6 +361,7 @@ def registrar(tipo, r, c):
 
     if cuadros_nuevos > 0:
         st.session_state.globos_pendientes += cuadros_nuevos
+        st.session_state.sonido_cuadro_pendiente += cuadros_nuevos
 
     if not formo:
         juego["turno"] = "Abuelita" if juego["turno"] == "Tutu" else "Tutu"
@@ -283,6 +378,10 @@ if conteo_actual > st.session_state.ultimo_conteo:
 if st.session_state.globos_pendientes > 0:
     st.balloons()
     st.session_state.globos_pendientes -= 1
+
+if st.session_state.sonido_cuadro_pendiente > 0:
+    reproducir_sonido(SONIDO_CUADRO)
+    st.session_state.sonido_cuadro_pendiente -= 1
 
 # -------------------- FIN DEL JUEGO --------------------
 fin_del_juego = len(juego["cuadros"]) == TOTAL_CUADROS
@@ -302,6 +401,11 @@ if fin_del_juego:
 if fin_del_juego and not st.session_state.fin_festejado:
     st.session_state.fx_html = crear_fx_html()
     st.session_state.fin_festejado = True
+    st.session_state.sonido_victoria_pendiente = True
+
+if st.session_state.sonido_victoria_pendiente:
+    reproducir_sonido(SONIDO_VICTORIA)
+    st.session_state.sonido_victoria_pendiente = False
 
 # Mostrar efectos si el juego terminó
 if fin_del_juego and st.session_state.fx_html:
@@ -325,10 +429,9 @@ if fin_del_juego:
         """, unsafe_allow_html=True)
     else:
         color_ganador = "#6A4CFF" if ganador == "Tutu" else "#A1400F"
-        emoji = "👑" if ganador else ""
         st.markdown(f"""
         <div class="mensaje-final" style="color:{color_ganador};">
-            <span class="corona">{emoji}</span> ¡Ganó {ganador}!
+            <span class="corona">👑</span> ¡Ganó {ganador}!
         </div>
         """, unsafe_allow_html=True)
 
@@ -393,6 +496,8 @@ if fin_del_juego:
             st.session_state.globos_pendientes = 0
             st.session_state.fin_festejado = False
             st.session_state.fx_html = ""
+            st.session_state.sonido_cuadro_pendiente = 0
+            st.session_state.sonido_victoria_pendiente = False
 
             st.rerun()
 
@@ -408,5 +513,32 @@ if st.sidebar.button("Reiniciar Juego"):
     st.session_state.globos_pendientes = 0
     st.session_state.fin_festejado = False
     st.session_state.fx_html = ""
+    st.session_state.sonido_cuadro_pendiente = 0
+    st.session_state.sonido_victoria_pendiente = False
 
     st.rerun()
+Lo importante del control gris
+
+Lo quité con estas partes del CSS:
+
+div[data-testid="stButton"] {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+div[data-testid="stButton"] > button {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    color: transparent !important;
+}
+
+div[data-testid="stButton"] > button:focus,
+div[data-testid="stButton"] > button:focus-visible,
+div[data-testid="stButton"] > button:active {
+    box-shadow: none !important;
+    outline: none !important;
+    border: none !important;
+}
