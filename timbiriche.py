@@ -4,40 +4,22 @@ from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(page_title="Timbiriche: Tutu vs Abuelita", layout="centered")
 
-# Auto-refresco cada 2 segundos para que ambos vean lo mismo
+# Auto-refresco cada 2 segundos para sincronizar
 st_autorefresh(interval=2000, key="datarefresh")
 
-# --- CSS PARA CUADROS PERFECTOS ---
+# --- CSS PARA CUADROS Y PUNTOS ---
 st.markdown("""
     <style>
-    /* Estilo de los botones (espacios para líneas) */
-    .stButton > button {
-        width: 100% !important; height: 35px !important;
-        background-color: #262730 !important; border: 1px solid #444 !important;
-        padding: 0px !important; margin: 0px !important;
-    }
+    .stButton > button { width: 100% !important; height: 35px !important; background-color: #262730 !important; border: 1px solid #444 !important; padding: 0px !important; }
     .punto { font-size: 26px; color: white; text-align: center; line-height: 35px; height: 35px; }
-    
-    /* Líneas horizontales llenas */
     .linea-h-llena { border-bottom: 6px solid #AAAAAA; width: 100%; height: 18px; }
-    
-    /* Líneas verticales llenas */
     .linea-v-llena { border-left: 6px solid #AAAAAA; height: 50px; margin: auto; width: 6px; }
-    
-    /* Cuadros ganados (Más grandes y centrados) */
-    .cuadro-tutu { 
-        background-color: #005A87; color: white; text-align: center; 
-        font-weight: bold; border-radius: 4px; line-height: 50px; height: 50px; width: 100%;
-        font-size: 20px;
-    }
-    .cuadro-abuelita { 
-        background-color: #7A2E16; color: white; text-align: center; 
-        font-weight: bold; border-radius: 4px; line-height: 50px; height: 50px; width: 100%;
-        font-size: 20px;
-    }
+    .cuadro-tutu { background-color: #005A87; color: white; text-align: center; font-weight: bold; border-radius: 4px; line-height: 50px; height: 50px; width: 100%; font-size: 20px; }
+    .cuadro-abuelita { background-color: #7A2E16; color: white; text-align: center; font-weight: bold; border-radius: 4px; line-height: 50px; height: 50px; width: 100%; font-size: 20px; }
     </style>
     """, unsafe_allow_html=True)
 
+# --- MEMORIA COMPARTIDA ---
 @st.cache_resource
 def obtener_juego_compartido():
     return {
@@ -46,18 +28,24 @@ def obtener_juego_compartido():
         "lineas_h": np.zeros((5, 4), dtype=bool),
         "lineas_v": np.zeros((4, 5), dtype=bool),
         "cuadros": {},
-        "globos": False
+        "total_cuadros": 0
     }
 
 juego = obtener_juego_compartido()
 
-if juego["globos"]:
+# --- LÓGICA DE GLOBOS LOCAL ---
+# Si el número de cuadros en el juego aumentó, lanzamos globos en esta pantalla
+if "ultimo_conteo" not in st.session_state:
+    st.session_state.ultimo_conteo = 0
+
+if len(juego["cuadros"]) > st.session_state.ultimo_conteo:
     st.balloons()
-    juego["globos"] = False
+    st.session_state.ultimo_conteo = len(juego["cuadros"])
 
 def registrar(tipo, r, c):
     if tipo == 'h': juego["lineas_h"][r, c] = True
     else: juego["lineas_v"][r, c] = True
+    
     h, v = juego["lineas_h"], juego["lineas_v"]
     formo = False
     for row in range(4):
@@ -67,7 +55,7 @@ def registrar(tipo, r, c):
                     juego["cuadros"][(row, col)] = juego["turno"]
                     juego["puntos"][juego["turno"]] += 1
                     formo = True
-                    juego["globos"] = True
+    
     if not formo:
         juego["turno"] = "Abuelita" if juego["turno"] == "Tutu" else "Tutu"
 
@@ -77,9 +65,7 @@ st.sidebar.write(f"### Turno de: **{juego['turno']}**")
 st.sidebar.metric("🔵 Tutu", juego["puntos"]["Tutu"])
 st.sidebar.metric("🔴 Abuelita", juego["puntos"]["Abuelita"])
 
-# Dibujamos el tablero (4 cuadros de ancho x 4 de alto)
 for r in range(5):
-    # Fila Horizontal
     cols = st.columns([1, 4, 1, 4, 1, 4, 1, 4, 1])
     for c in range(4):
         cols[c*2].markdown("<div class='punto'>●</div>", unsafe_allow_html=True)
@@ -91,7 +77,6 @@ for r in range(5):
                 st.rerun()
     cols[8].markdown("<div class='punto'>●</div>", unsafe_allow_html=True)
 
-    # Fila Vertical y Cuadros
     if r < 4:
         cols_v = st.columns([1, 4, 1, 4, 1, 4, 1, 4, 1])
         for c in range(5):
@@ -112,4 +97,5 @@ if st.sidebar.button("Reiniciar Juego"):
     juego["lineas_h"].fill(False)
     juego["lineas_v"].fill(False)
     juego["cuadros"].clear()
+    st.session_state.ultimo_conteo = 0
     st.rerun()
