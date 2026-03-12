@@ -517,9 +517,6 @@ if st.sidebar.button("Reiniciar Juego"):
     st.session_state.sonido_victoria_pendiente = False
 
     st.rerun()
-Lo importante del control gris
-
-Lo quité con estas partes del CSS:
 
 div[data-testid="stButton"] {
     background: transparent !important;
