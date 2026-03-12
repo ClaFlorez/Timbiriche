@@ -14,7 +14,7 @@ st.markdown("""
     .punto { font-size: 26px; color: white; text-align: center; line-height: 35px; height: 35px; }
     .linea-h-llena { border-bottom: 6px solid #AAAAAA; width: 100%; height: 18px; }
     .linea-v-llena { border-left: 6px solid #AAAAAA; height: 50px; margin: auto; width: 6px; }
-    .cuadro-tutu { background-color: #4B3FDC; color: white; text-align: center; font-weight: bold; border-radius: 4px; line-height: 50px; height: 50px; width: 100%; font-size: 20px; }
+    .cuadro-tutu { background-color: #6A4CFF; color: white; text-align: center; font-weight: bold; border-radius: 4px; line-height: 50px; height: 50px; width: 100%; font-size: 20px; }
     .cuadro-abuelita { background-color: #7A2E16; color: white; text-align: center; font-weight: bold; border-radius: 4px; line-height: 50px; height: 50px; width: 100%; font-size: 20px; }
     </style>
     """, unsafe_allow_html=True)
