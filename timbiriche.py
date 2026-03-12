@@ -4,29 +4,40 @@ from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(page_title="Timbiriche: Tutu vs Abuelita", layout="centered")
 
-# --- AUTO-REFRESCO: Revisa cambios cada 2 segundos ---
+# Auto-refresco cada 2 segundos para que ambos vean lo mismo
 st_autorefresh(interval=2000, key="datarefresh")
 
-# --- CSS Original ---
+# --- CSS PARA CUADROS PERFECTOS ---
 st.markdown("""
     <style>
-    /* Hace que el botón (la franja) sea invisible pero clickeable */
+    /* Estilo de los botones (espacios para líneas) */
     .stButton > button {
-        background-color: transparent !important; /* Quita el color gris */
-        border: none !important;                 /* Quita el borde redondeado */
-        color: transparent !important;            /* Quita cualquier texto */
-        height: 20px !important;                  /* Lo hace más delgado */
-        margin-top: 10px !important;              /* Lo alinea con el punto */
+        width: 100% !important; height: 35px !important;
+        background-color: #262730 !important; border: 1px solid #444 !important;
+        padding: 0px !important; margin: 0px !important;
     }
+    .punto { font-size: 26px; color: white; text-align: center; line-height: 35px; height: 35px; }
     
-    /* Cambia el color cuando pasas el mouse por encima para saber dónde clickear */
-    .stButton > button:hover {
-        background-color: rgba(255, 255, 255, 0.1) !important;
+    /* Líneas horizontales llenas */
+    .linea-h-llena { border-bottom: 6px solid #AAAAAA; width: 100%; height: 18px; }
+    
+    /* Líneas verticales llenas */
+    .linea-v-llena { border-left: 6px solid #AAAAAA; height: 50px; margin: auto; width: 6px; }
+    
+    /* Cuadros ganados (Más grandes y centrados) */
+    .cuadro-tutu { 
+        background-color: #005A87; color: white; text-align: center; 
+        font-weight: bold; border-radius: 4px; line-height: 50px; height: 50px; width: 100%;
+        font-size: 20px;
+    }
+    .cuadro-abuelita { 
+        background-color: #7A2E16; color: white; text-align: center; 
+        font-weight: bold; border-radius: 4px; line-height: 50px; height: 50px; width: 100%;
+        font-size: 20px;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- MEMORIA COMPARTIDA ---
 @st.cache_resource
 def obtener_juego_compartido():
     return {
@@ -35,68 +46,67 @@ def obtener_juego_compartido():
         "lineas_h": np.zeros((5, 4), dtype=bool),
         "lineas_v": np.zeros((4, 5), dtype=bool),
         "cuadros": {},
-        "lanzar_globos": False
+        "globos": False
     }
 
 juego = obtener_juego_compartido()
 
-# LANZAR GLOBOS SI ALGUIEN ANOTÓ
-if juego["lanzar_globos"]:
+if juego["globos"]:
     st.balloons()
-    juego["lanzar_globos"] = False
+    juego["globos"] = False
 
-def registrar_movimiento(tipo, r, c):
+def registrar(tipo, r, c):
     if tipo == 'h': juego["lineas_h"][r, c] = True
     else: juego["lineas_v"][r, c] = True
-    
     h, v = juego["lineas_h"], juego["lineas_v"]
-    formo_cuadro = False
+    formo = False
     for row in range(4):
         for col in range(4):
             if (row, col) not in juego["cuadros"]:
                 if h[row, col] and h[row+1, col] and v[row, col] and v[row, col+1]:
                     juego["cuadros"][(row, col)] = juego["turno"]
                     juego["puntos"][juego["turno"]] += 1
-                    formo_cuadro = True
-                    juego["lanzar_globos"] = True
-    
-    if not formo_cuadro:
+                    formo = True
+                    juego["globos"] = True
+    if not formo:
         juego["turno"] = "Abuelita" if juego["turno"] == "Tutu" else "Tutu"
 
-# --- Interfaz del Tablero ---
+# --- INTERFAZ ---
 st.title("🕹️ Timbiriche: Tutu vs Abuelita")
-st.sidebar.header(f"Turno de: {juego['turno']}")
-st.sidebar.metric("🔵 Puntos Tutu", juego["puntos"]["Tutu"])
-st.sidebar.metric("🔴 Puntos Abuelita", juego["puntos"]["Abuelita"])
+st.sidebar.write(f"### Turno de: **{juego['turno']}**")
+st.sidebar.metric("🔵 Tutu", juego["puntos"]["Tutu"])
+st.sidebar.metric("🔴 Abuelita", juego["puntos"]["Abuelita"])
 
+# Dibujamos el tablero (4 cuadros de ancho x 4 de alto)
 for r in range(5):
+    # Fila Horizontal
     cols = st.columns([1, 4, 1, 4, 1, 4, 1, 4, 1])
     for c in range(4):
         cols[c*2].markdown("<div class='punto'>●</div>", unsafe_allow_html=True)
         if juego["lineas_h"][r, c]:
             cols[c*2+1].markdown("<div class='linea-h-llena'></div>", unsafe_allow_html=True)
         else:
-            if cols[c*2+1].button(" ", key=f"h_{r}_{c}"):
-                registrar_movimiento('h', r, c)
+            if cols[c*2+1].button(" ", key=f"h{r}{c}"):
+                registrar('h', r, c)
                 st.rerun()
     cols[8].markdown("<div class='punto'>●</div>", unsafe_allow_html=True)
 
+    # Fila Vertical y Cuadros
     if r < 4:
         cols_v = st.columns([1, 4, 1, 4, 1, 4, 1, 4, 1])
         for c in range(5):
             if juego["lineas_v"][r, c]:
                 cols_v[c*2].markdown("<div class='linea-v-llena'></div>", unsafe_allow_html=True)
             else:
-                if cols_v[c*2].button(" ", key=f"v_{r}_{c}"):
-                    registrar_movimiento('v', r, c)
+                if cols_v[c*2].button(" ", key=f"v{r}{c}"):
+                    registrar('v', r, c)
                     st.rerun()
             if c < 4 and (r, c) in juego["cuadros"]:
-                owner = juego["cuadros"][(r, c)]
-                clase = "cuadro-tutu" if owner == "Tutu" else "cuadro-abuelita"
-                label = "T" if owner == "Tutu" else "A"
-                cols_v[c*2+1].markdown(f"<div class={clase}>{label}</div>", unsafe_allow_html=True)
+                own = juego["cuadros"][(r, c)]
+                clase = "cuadro-tutu" if own == "Tutu" else "cuadro-abuelita"
+                cols_v[c*2+1].markdown(f"<div class='{clase}'>{own[0]}</div>", unsafe_allow_html=True)
 
-if st.sidebar.button("Reiniciar Juego para Todos"):
+if st.sidebar.button("Reiniciar Juego"):
     juego["puntos"] = {"Tutu": 0, "Abuelita": 0}
     juego["turno"] = "Tutu"
     juego["lineas_h"].fill(False)
