@@ -142,6 +142,24 @@ h1 {
     text-shadow: 0 0 12px rgba(255,255,255,0.15);
 }
 
+/* --- AGREGAR ESTO PARA FIJAR EL TABLERO --- */
+[data-testid="column"] {
+    width: 100% !important;
+    flex-basis: auto !important;
+    min-width: 0px !important;
+}
+
+/* Fuerza a que el botón invisible y la línea ocupen 50px de alto siempre */
+div[data-testid="stButton"] button {
+    height: 50px !important;
+    min-height: 50px !important;
+}
+
+.linea-h-llena, .linea-v-llena {
+    height: 50px !important;
+    min-height: 50px !important;
+}
+
 .corona {
     font-size: 48px;
     margin-right: 8px;
