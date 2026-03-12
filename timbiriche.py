@@ -6,12 +6,12 @@ import wave
 import struct
 import io
 import base64
-# from streamlit_autorefresh import st_autorefresh
+from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(page_title="Timbiriche: Tutu vs Abuelita", layout="wide")
 
 # Refresco suave
-# st_autorefresh(interval=8000, key="datarefresh")
+st_autorefresh(interval=8000, key="datarefresh")
 
 # -------------------- CSS --------------------
 st.markdown("""
