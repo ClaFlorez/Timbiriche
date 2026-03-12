@@ -518,24 +518,5 @@ if st.sidebar.button("Reiniciar Juego"):
 
     st.rerun()
 
-div[data-testid="stButton"] {
-    background: transparent !important;
-    box-shadow: none !important;
-    border: none !important;
-}
 
-div[data-testid="stButton"] > button {
-    background: transparent !important;
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    color: transparent !important;
-}
-
-div[data-testid="stButton"] > button:focus,
-div[data-testid="stButton"] > button:focus-visible,
-div[data-testid="stButton"] > button:active {
-    box-shadow: none !important;
-    outline: none !important;
-    border: none !important;
 }
