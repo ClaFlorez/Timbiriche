@@ -517,6 +517,3 @@ if st.sidebar.button("Reiniciar Juego"):
     st.session_state.sonido_victoria_pendiente = False
 
     st.rerun()
-
-
-}
