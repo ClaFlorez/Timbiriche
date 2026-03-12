@@ -10,12 +10,19 @@ st_autorefresh(interval=2000, key="datarefresh")
 # --- CSS Original ---
 st.markdown("""
     <style>
-    .stButton > button { width: 100%; padding: 0px; height: 35px; background-color: #262730; border: 1px solid #444; }
-    .punto { font-size: 25px; text-align: center; line-height: 35px; color: white; }
-    .linea-h-llena { border-bottom: 6px solid #AAAAAA; margin-top: 15px; }
-    .linea-v-llena { border-left: 6px solid #AAAAAA; height: 40px; margin-left: 50%; }
-    .cuadro-tutu { background-color: #005A87; display: flex; align-items: center; justify-content: center; height: 40px; border-radius: 4px; font-weight: bold; }
-    .cuadro-abuelita { background-color: #7A2E16; display: flex; align-items: center; justify-content: center; height: 40px; border-radius: 4px; font-weight: bold; }
+    /* Hace que el botón (la franja) sea invisible pero clickeable */
+    .stButton > button {
+        background-color: transparent !important; /* Quita el color gris */
+        border: none !important;                 /* Quita el borde redondeado */
+        color: transparent !important;            /* Quita cualquier texto */
+        height: 20px !important;                  /* Lo hace más delgado */
+        margin-top: 10px !important;              /* Lo alinea con el punto */
+    }
+    
+    /* Cambia el color cuando pasas el mouse por encima para saber dónde clickear */
+    .stButton > button:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
