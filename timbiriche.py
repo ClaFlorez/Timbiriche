@@ -41,8 +41,8 @@ div[data-testid="stButton"] {
     box-shadow: none !important;
     border: none !important;
 }
-
-div[data-testid="stButton"] > button {
+/* Solo botones del tablero: invisibles */
+button[kind="secondary"] {
     width: 100% !important;
     height: 50px !important;
     min-height: 50px !important;
@@ -62,12 +62,52 @@ div[data-testid="stButton"] > button {
     transition: background-color 0.12s ease !important;
 }
 
-div[data-testid="stButton"] > button p {
+button[kind="secondary"] p {
     color: transparent !important;
     margin: 0 !important;
     padding: 0 !important;
     line-height: 0 !important;
     font-size: 0 !important;
+}
+
+button[kind="secondary"]:hover {
+    background: rgba(255,255,255,0.06) !important;
+    box-shadow: none !important;
+    outline: none !important;
+    border: none !important;
+    cursor: pointer !important;
+}
+
+button[kind="secondary"]:focus,
+button[kind="secondary"]:focus-visible,
+button[kind="secondary"]:active {
+    background: rgba(255,255,255,0.04) !important;
+    box-shadow: none !important;
+    outline: none !important;
+    border: none !important;
+}
+
+/* Botón final visible */
+button[kind="primary"] {
+    background: linear-gradient(135deg, #6A4CFF 0%, #4F46D7 100%) !important;
+    color: white !important;
+    font-weight: 700 !important;
+    font-size: 22px !important;
+    border: none !important;
+    border-radius: 14px !important;
+    padding: 0.8rem 1rem !important;
+    box-shadow: 0 0 18px rgba(106,76,255,0.35) !important;
+}
+
+button[kind="primary"] p {
+    color: white !important;
+    font-size: 22px !important;
+    font-weight: 700 !important;
+}
+
+button[kind="primary"]:hover {
+    filter: brightness(1.08) !important;
+    transform: scale(1.02);
 }
 
 div[data-testid="stButton"] > button:hover {
@@ -469,7 +509,7 @@ st.markdown("<div style='height:18px;'></div>", unsafe_allow_html=True)
 if fin_del_juego:
     c1, c2, c3 = st.columns([2, 2.8, 2])
     with c2:
-        if st.button("🎮 JUGAR OTRA VEZ", key="nuevo_juego_final", use_container_width=True):
+        if st.button("🎮 JUGAR OTRA VEZ", key="nuevo_juego_final", use_container_width=True, type="primary"):
             juego["puntos"] = {"Tutu": 0, "Abuelita": 0}
             juego["turno"] = "Tutu"
             juego["lineas_h"].fill(False)
