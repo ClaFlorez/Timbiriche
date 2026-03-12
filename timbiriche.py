@@ -249,6 +249,36 @@ h1 {
         opacity: 0;
     }
 }
+/* 1. FIJAR EL TAMAÑO DE LAS COLUMNAS */
+div[data-testid="stHorizontalBlock"] {
+    gap: 0px !important; /* Quita el espacio entre columnas */
+    align-items: center;
+}
+
+/* 2. FORZAR TAMAÑO FIJO EN CADA ELEMENTO */
+[data-testid="column"] {
+    min-width: 0px !important;
+}
+
+/* 3. AJUSTAR LÍNEAS PARA QUE NO MUEVAN NADA */
+.linea-h-llena, .linea-v-llena {
+    box-sizing: border-box;
+}
+
+/* Asegurar que el punto ● no se mueva */
+.punto {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* BOTONES: Que ocupen exactamente el mismo espacio que las líneas */
+button[kind="secondary"] {
+    border: 1px solid rgba(255,255,255,0.05) !important;
+    height: 50px !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
