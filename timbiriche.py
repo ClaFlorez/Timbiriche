@@ -16,29 +16,24 @@ st_autorefresh(interval=8000, key="datarefresh")
 # -------------------- CSS --------------------
 st.markdown("""
 <style>
-/* Fondo general */
 .stApp {
     background: radial-gradient(circle at top, #07152b 0%, #020814 60%, #01040d 100%);
 }
 
-/* Menos espacio entre columnas */
 div[data-testid="stHorizontalBlock"] {
     gap: 0.25rem !important;
 }
 
-/* Quitar márgenes raros */
 .element-container {
     margin-top: 0rem !important;
     margin-bottom: 0rem !important;
 }
 
-/* Sidebar */
 section[data-testid="stSidebar"] {
     background: rgba(255,255,255,0.04);
     border-right: 1px solid rgba(255,255,255,0.06);
 }
 
-/* Wrapper del botón */
 div[data-testid="stButton"] {
     margin: 0 !important;
     padding: 0 !important;
@@ -47,7 +42,6 @@ div[data-testid="stButton"] {
     border: none !important;
 }
 
-/* Botón totalmente limpio */
 div[data-testid="stButton"] > button {
     width: 100% !important;
     height: 50px !important;
@@ -68,7 +62,6 @@ div[data-testid="stButton"] > button {
     transition: background-color 0.12s ease !important;
 }
 
-/* Quitar texto interno / sombra */
 div[data-testid="stButton"] > button p {
     color: transparent !important;
     margin: 0 !important;
@@ -77,7 +70,6 @@ div[data-testid="stButton"] > button p {
     font-size: 0 !important;
 }
 
-/* Hover visible pero suave */
 div[data-testid="stButton"] > button:hover {
     background: rgba(255,255,255,0.06) !important;
     box-shadow: none !important;
@@ -86,7 +78,6 @@ div[data-testid="stButton"] > button:hover {
     cursor: pointer !important;
 }
 
-/* Focus y active sin caja gris */
 div[data-testid="stButton"] > button:focus,
 div[data-testid="stButton"] > button:focus-visible,
 div[data-testid="stButton"] > button:active {
@@ -96,7 +87,6 @@ div[data-testid="stButton"] > button:active {
     border: none !important;
 }
 
-/* Título */
 h1 {
     text-align: center;
     color: white !important;
@@ -104,7 +94,6 @@ h1 {
     margin-bottom: 0.5rem !important;
 }
 
-/* Subtítulo final */
 .mensaje-final {
     text-align: center;
     font-size: 44px;
@@ -113,13 +102,11 @@ h1 {
     text-shadow: 0 0 12px rgba(255,255,255,0.15);
 }
 
-/* Corona */
 .corona {
     font-size: 48px;
     margin-right: 8px;
 }
 
-/* Punto */
 .punto {
     display: flex;
     align-items: center;
@@ -131,7 +118,6 @@ h1 {
     padding: 0;
 }
 
-/* Línea horizontal */
 .linea-h-llena {
     height: 50px;
     display: flex;
@@ -149,7 +135,6 @@ h1 {
     box-shadow: 0 0 4px rgba(255,255,255,0.10);
 }
 
-/* Línea vertical */
 .linea-v-llena {
     width: 100%;
     height: 50px;
@@ -168,7 +153,6 @@ h1 {
     box-shadow: 0 0 4px rgba(255,255,255,0.10);
 }
 
-/* Cuadros */
 .cuadro-tutu, .cuadro-abuelita {
     display: flex;
     align-items: center;
@@ -195,7 +179,6 @@ h1 {
     box-shadow: 0 0 14px rgba(154,61,16,0.22);
 }
 
-/* Capa de estrellas/confetti */
 .fx-layer {
     position: fixed;
     inset: 0;
@@ -231,10 +214,6 @@ h1 {
 
 # -------------------- AUDIO --------------------
 def crear_tono_wav_base64(frecuencias, duracion=0.22, volumen=0.35, sample_rate=22050):
-    """
-    Genera un WAV corto en memoria y lo devuelve en base64.
-    frecuencias: número o lista/tupla de números
-    """
     if isinstance(frecuencias, (int, float)):
         frecuencias = [frecuencias]
 
@@ -249,13 +228,14 @@ def crear_tono_wav_base64(frecuencias, duracion=0.22, volumen=0.35, sample_rate=
         for i in range(n_samples):
             t = i / sample_rate
             value = 0.0
+
             for f in frecuencias:
                 value += math.sin(2 * math.pi * f * t)
+
             value /= max(len(frecuencias), 1)
 
-            # pequeña envolvente para evitar clics
-            env = 1.0
             fade = int(0.02 * sample_rate)
+            env = 1.0
             if i < fade:
                 env = i / max(fade, 1)
             elif i > n_samples - fade:
@@ -269,6 +249,7 @@ def crear_tono_wav_base64(frecuencias, duracion=0.22, volumen=0.35, sample_rate=
 
 SONIDO_CUADRO = crear_tono_wav_base64([660, 880], duracion=0.18, volumen=0.30)
 SONIDO_VICTORIA = crear_tono_wav_base64([523, 659, 784], duracion=0.55, volumen=0.34)
+
 
 def reproducir_sonido(base64_audio, autoplay=True):
     auto = "autoplay" if autoplay else ""
@@ -319,34 +300,38 @@ if "sonido_victoria_pendiente" not in st.session_state:
 def crear_fx_html(cantidad=36):
     simbolos = ["⭐", "✨", "🌟", "🎉", "💜", "🎊"]
     piezas = ['<div class="fx-layer">']
+
     for _ in range(cantidad):
         left = random.randint(0, 96)
         delay = round(random.uniform(0, 2.5), 2)
         dur = round(random.uniform(3.5, 6.5), 2)
         size = random.randint(20, 38)
         simb = random.choice(simbolos)
-        piezas.append(
-            f"""
-            <div class="fx-item"
-                 style="left:{left}%;
-                        animation-delay:{delay}s;
-                        animation-duration:{dur}s;
-                        font-size:{size}px;">
-                {simb}
-            </div>
-            """
-        )
+
+        piezas.append(f'''
+<div class="fx-item"
+style="
+left:{left}%;
+animation-delay:{delay}s;
+animation-duration:{dur}s;
+font-size:{size}px;
+">
+{simb}
+</div>
+''')
+
     piezas.append("</div>")
     return "\n".join(piezas)
 
-# -------------------- LÓGICA --------------------
+# -------------------- LÓGICA DEL JUEGO --------------------
 def registrar(tipo, r, c):
     if tipo == "h":
         juego["lineas_h"][r, c] = True
     else:
         juego["lineas_v"][r, c] = True
 
-    h, v = juego["lineas_h"], juego["lineas_v"]
+    h = juego["lineas_h"]
+    v = juego["lineas_v"]
     formo = False
     cuadros_nuevos = 0
 
@@ -366,7 +351,7 @@ def registrar(tipo, r, c):
     if not formo:
         juego["turno"] = "Abuelita" if juego["turno"] == "Tutu" else "Tutu"
 
-# -------------------- GLOBOS DURANTE PARTIDA --------------------
+# -------------------- GLOBOS Y SONIDO DE CUADROS --------------------
 conteo_actual = len(juego["cuadros"])
 
 if conteo_actual > st.session_state.ultimo_conteo:
@@ -407,7 +392,6 @@ if st.session_state.sonido_victoria_pendiente:
     reproducir_sonido(SONIDO_VICTORIA)
     st.session_state.sonido_victoria_pendiente = False
 
-# Mostrar efectos si el juego terminó
 if fin_del_juego and st.session_state.fx_html:
     st.markdown(st.session_state.fx_html, unsafe_allow_html=True)
 
@@ -479,7 +463,7 @@ for r in range(5):
                 else:
                     cols_v[c * 2 + 1].markdown("<div style='height:50px;'></div>", unsafe_allow_html=True)
 
-# -------------------- BOTÓN GRANDE FINAL --------------------
+# -------------------- BOTÓN FINAL --------------------
 st.markdown("<div style='height:18px;'></div>", unsafe_allow_html=True)
 
 if fin_del_juego:
@@ -501,7 +485,7 @@ if fin_del_juego:
 
             st.rerun()
 
-# -------------------- REINICIO EN SIDEBAR --------------------
+# -------------------- REINICIO SIDEBAR --------------------
 if st.sidebar.button("Reiniciar Juego"):
     juego["puntos"] = {"Tutu": 0, "Abuelita": 0}
     juego["turno"] = "Tutu"
