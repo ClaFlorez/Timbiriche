@@ -1,7 +1,11 @@
 import streamlit as st
 import numpy as np
+from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(page_title="Timbiriche: Tutu vs Abuelita", layout="centered")
+
+# --- AUTO-REFRESCO: Revisa cambios cada 2 segundos ---
+st_autorefresh(interval=2000, key="datarefresh")
 
 # --- CSS Original ---
 st.markdown("""
@@ -15,48 +19,54 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-if 'puntos' not in st.session_state:
-    st.session_state.puntos = {"Tutu": 0, "Abuelita": 0}
-    st.session_state.turno = "Tutu"
-    st.session_state.lineas_h = np.zeros((5, 4), dtype=bool)
-    st.session_state.lineas_v = np.zeros((4, 5), dtype=bool)
-    st.session_state.cuadros = {}
-    st.session_state.lanzar_globos = False # Nueva memoria para globos
+# --- MEMORIA COMPARTIDA ---
+@st.cache_resource
+def obtener_juego_compartido():
+    return {
+        "puntos": {"Tutu": 0, "Abuelita": 0},
+        "turno": "Tutu",
+        "lineas_h": np.zeros((5, 4), dtype=bool),
+        "lineas_v": np.zeros((4, 5), dtype=bool),
+        "cuadros": {},
+        "lanzar_globos": False
+    }
 
-# SI HAY GLOBOS PENDIENTES, LOS LANZAMOS AHORA
-if st.session_state.lanzar_globos:
+juego = obtener_juego_compartido()
+
+# LANZAR GLOBOS SI ALGUIEN ANOTÓ
+if juego["lanzar_globos"]:
     st.balloons()
-    st.session_state.lanzar_globos = False
+    juego["lanzar_globos"] = False
 
 def registrar_movimiento(tipo, r, c):
-    if tipo == 'h': st.session_state.lineas_h[r, c] = True
-    else: st.session_state.lineas_v[r, c] = True
+    if tipo == 'h': juego["lineas_h"][r, c] = True
+    else: juego["lineas_v"][r, c] = True
     
-    h, v = st.session_state.lineas_h, st.session_state.lineas_v
+    h, v = juego["lineas_h"], juego["lineas_v"]
     formo_cuadro = False
     for row in range(4):
         for col in range(4):
-            if (row, col) not in st.session_state.cuadros:
+            if (row, col) not in juego["cuadros"]:
                 if h[row, col] and h[row+1, col] and v[row, col] and v[row, col+1]:
-                    st.session_state.cuadros[(row, col)] = st.session_state.turno
-                    st.session_state.puntos[st.session_state.turno] += 1
+                    juego["cuadros"][(row, col)] = juego["turno"]
+                    juego["puntos"][juego["turno"]] += 1
                     formo_cuadro = True
-                    st.session_state.lanzar_globos = True # Marcamos que ganaste globos
+                    juego["lanzar_globos"] = True
     
     if not formo_cuadro:
-        st.session_state.turno = "Abuelita" if st.session_state.turno == "Tutu" else "Tutu"
+        juego["turno"] = "Abuelita" if juego["turno"] == "Tutu" else "Tutu"
 
 # --- Interfaz del Tablero ---
 st.title("🕹️ Timbiriche: Tutu vs Abuelita")
-st.sidebar.header(f"Turno de: {st.session_state.turno}")
-st.sidebar.metric("🔵 Puntos Tutu", st.session_state.puntos["Tutu"])
-st.sidebar.metric("🔴 Puntos Abuelita", st.session_state.puntos["Abuelita"])
+st.sidebar.header(f"Turno de: {juego['turno']}")
+st.sidebar.metric("🔵 Puntos Tutu", juego["puntos"]["Tutu"])
+st.sidebar.metric("🔴 Puntos Abuelita", juego["puntos"]["Abuelita"])
 
 for r in range(5):
     cols = st.columns([1, 4, 1, 4, 1, 4, 1, 4, 1])
     for c in range(4):
         cols[c*2].markdown("<div class='punto'>●</div>", unsafe_allow_html=True)
-        if st.session_state.lineas_h[r, c]:
+        if juego["lineas_h"][r, c]:
             cols[c*2+1].markdown("<div class='linea-h-llena'></div>", unsafe_allow_html=True)
         else:
             if cols[c*2+1].button(" ", key=f"h_{r}_{c}"):
@@ -67,18 +77,22 @@ for r in range(5):
     if r < 4:
         cols_v = st.columns([1, 4, 1, 4, 1, 4, 1, 4, 1])
         for c in range(5):
-            if st.session_state.lineas_v[r, c]:
+            if juego["lineas_v"][r, c]:
                 cols_v[c*2].markdown("<div class='linea-v-llena'></div>", unsafe_allow_html=True)
             else:
                 if cols_v[c*2].button(" ", key=f"v_{r}_{c}"):
                     registrar_movimiento('v', r, c)
                     st.rerun()
-            if c < 4 and (r, c) in st.session_state.cuadros:
-                owner = st.session_state.cuadros[(r, c)]
+            if c < 4 and (r, c) in juego["cuadros"]:
+                owner = juego["cuadros"][(r, c)]
                 clase = "cuadro-tutu" if owner == "Tutu" else "cuadro-abuelita"
                 label = "T" if owner == "Tutu" else "A"
                 cols_v[c*2+1].markdown(f"<div class={clase}>{label}</div>", unsafe_allow_html=True)
 
-if st.sidebar.button("Reiniciar Juego"):
-    st.session_state.clear()
+if st.sidebar.button("Reiniciar Juego para Todos"):
+    juego["puntos"] = {"Tutu": 0, "Abuelita": 0}
+    juego["turno"] = "Tutu"
+    juego["lineas_h"].fill(False)
+    juego["lineas_v"].fill(False)
+    juego["cuadros"].clear()
     st.rerun()
