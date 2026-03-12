@@ -3,39 +3,26 @@ import numpy as np
 
 st.set_page_config(page_title="Timbiriche: Tutu vs Abuelita", layout="centered")
 
-# --- CSS RADICAL PARA FIJAR POSICIONES ---
+# --- CSS PARA FORZAR LA CUADRÍCULA ---
 st.markdown("""
     <style>
-    /* Centrar todo el tablero */
-    .tablero-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background-color: #0E1117;
-        padding: 20px;
-        border-radius: 10px;
-    }
-    /* Estilo de los botones para que no tengan margen */
+    .timbiriche-table { border-collapse: collapse; margin: auto; }
+    .punto { font-size: 24px; color: white; width: 20px; height: 20px; text-align: center; line-height: 20px; }
+    
+    /* Botones de línea */
     .stButton > button {
-        width: 100% !important;
-        height: 100% !important;
-        padding: 0px !important;
-        margin: 0px !important;
-        min-height: 25px !important;
-        background-color: #262730;
-        border: 1px solid #444;
+        width: 100% !important; height: 30px !important;
+        padding: 0px !important; background-color: #262730; border: 1px solid #444;
     }
-    .punto { font-size: 24px; color: white; text-align: center; line-height: 25px; }
     
-    /* Líneas horizontales llenas */
-    .linea-h-llena { border-bottom: 5px solid #AAAAAA; width: 100%; height: 12px; }
-    /* Líneas verticales llenas */
-    .linea-v-llena { border-left: 5px solid #AAAAAA; height: 100%; width: 5px; margin: auto; }
+    /* Líneas horizontales */
+    .linea-h-llena { border-bottom: 6px solid #AAAAAA; width: 60px; height: 15px; }
+    /* Líneas verticales */
+    .linea-v-llena { border-left: 6px solid #AAAAAA; height: 60px; margin: auto; width: 6px; }
     
-    /* Cuadros llenos */
-    .cuadro-tutu { background-color: #005A87; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 4px; color: white; }
-    .cuadro-abuelita { background-color: #7A2E16; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 4px; color: white; }
+    /* Cuadros ganados */
+    .cuadro-tutu { background-color: #005A87; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 4px; color: white; }
+    .cuadro-abuelita { background-color: #7A2E16; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 4px; color: white; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -70,41 +57,38 @@ def registrar(tipo, r, c):
 # --- INTERFAZ ---
 st.title("🕹️ Timbiriche: Tutu vs Abuelita")
 st.sidebar.header(f"Turno de: {st.session_state.turno}")
-st.sidebar.metric("🔵 Tutu", st.session_state.puntos["Tutu"])
-st.sidebar.metric("🔴 Abuelita", st.session_state.puntos["Abuelita"])
+st.sidebar.metric("🔵 Puntos Tutu", st.session_state.puntos["Tutu"])
+st.sidebar.metric("🔴 Puntos Abuelita", st.session_state.puntos["Abuelita"])
 
-# Contenedor principal
-with st.container():
-    for r in range(5):
-        # Fila horizontal: Punto - Línea - Punto
-        # Ajustamos los anchos para que sean proporcionales
-        cols = st.columns([1, 3, 1, 3, 1, 3, 1, 3, 1], gap="small")
-        for c in range(4):
-            cols[c*2].markdown("<div class='punto'>●</div>", unsafe_allow_html=True)
-            if st.session_state.lineas_h[r, c]:
-                cols[c*2+1].markdown("<div class='linea-h-llena'></div>", unsafe_allow_html=True)
+# Dibujamos usando columnas pero con anchos fijos que NO se desajusten
+for r in range(5):
+    # Fila horizontal
+    row_cols = st.columns([1, 3, 1, 3, 1, 3, 1, 3, 1])
+    for c in range(4):
+        row_cols[c*2].markdown("<div class='punto'>●</div>", unsafe_allow_html=True)
+        if st.session_state.lineas_h[r, c]:
+            row_cols[c*2+1].markdown("<div class='linea-h-llena'></div>", unsafe_allow_html=True)
+        else:
+            if row_cols[c*2+1].button(" ", key=f"h{r}{c}"):
+                registrar('h', r, c)
+                st.rerun()
+    row_cols[8].markdown("<div class='punto'>●</div>", unsafe_allow_html=True)
+
+    # Fila vertical y Cuadros
+    if r < 4:
+        row_cols_v = st.columns([1, 3, 1, 3, 1, 3, 1, 3, 1])
+        for c in range(5):
+            if st.session_state.lineas_v[r, c]:
+                row_cols_v[c*2].markdown("<div class='linea-v-llena'></div>", unsafe_allow_html=True)
             else:
-                if cols[c*2+1].button(" ", key=f"h{r}{c}"):
-                    registrar('h', r, c)
+                if row_cols_v[c*2].button(" ", key=f"v{r}{c}"):
+                    registrar('v', r, c)
                     st.rerun()
-        cols[8].markdown("<div class='punto'>●</div>", unsafe_allow_html=True)
-
-        # Fila vertical: Línea - Cuadro - Línea
-        if r < 4:
-            cols_v = st.columns([1, 3, 1, 3, 1, 3, 1, 3, 1], gap="small")
-            for c in range(5):
-                if st.session_state.lineas_v[r, c]:
-                    cols_v[c*2].markdown("<div class='linea-v-llena'></div>", unsafe_allow_html=True)
-                else:
-                    if cols_v[c*2].button(" ", key=f"v{r}{c}"):
-                        registrar('v', r, c)
-                        st.rerun()
-                
-                # Cuadro Central
-                if c < 4 and (r, c) in st.session_state.cuadros:
-                    own = st.session_state.cuadros[(r, c)]
-                    clase = "cuadro-tutu" if own == "Tutu" else "cuadro-abuelita"
-                    cols_v[c*2+1].markdown(f"<div class='{clase}'>{own[0]}</div>", unsafe_allow_html=True)
+            if c < 4 and (r, c) in st.session_state.cuadros:
+                own = st.session_state.cuadros[(r, c)]
+                clase = "cuadro-tutu" if own == "Tutu" else "cuadro-abuelita"
+                label = "T" if own == "Tutu" else "A"
+                row_cols_v[c*2+1].markdown(f"<div class='{clase}'>{label}</div>", unsafe_allow_html=True)
 
 if st.sidebar.button("Reiniciar"):
     st.session_state.clear()
