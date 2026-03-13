@@ -1,70 +1,59 @@
-# 🕹️ Timbiriche Multiplayer: Tutu vs Abuelita
+# 🕹️ Timbiriche Multiplayer: Tutu vs Abuelita (Edición Estelar ✨)
 
-¡Bienvenido al repositorio de **Timbiriche Pro**! Este proyecto transforma el clásico juego de lápiz y papel en una experiencia web moderna, sincronizada y llena de efectos visuales, diseñada específicamente para que **Tutu** y su **Abuelita** puedan jugar juntos en tiempo real.
+¡Bienvenido a la versión definitiva de **Timbiriche Pro**! Este proyecto transforma el clásico juego de puntos y líneas en una experiencia digital competitiva, diseñada para que **Tutu** y su **Abuelita** jueguen en tiempo real con efectos visuales de alta calidad.
 
-## 🚀 El Desafío Técnico
-Crear un juego de mesa interactivo en **Streamlit** requirió soluciones creativas para superar las limitaciones de una plataforma pensada originalmente para datos:
+## 🚀 Innovaciones Técnicas
+Para lograr esta experiencia en **Streamlit**, implementamos soluciones avanzadas de desarrollo web:
 
-* **Sincronización Global:** Uso de `@st.cache_resource` para crear una memoria compartida en el servidor, permitiendo que ambos jugadores vean los mismos movimientos al instante.
-* **Interfaz Inmóvil:** Implementación de CSS avanzado para fijar el tamaño de celdas y columnas, evitando que el tablero "salte" o se mueva al marcar líneas.
-* **Sistema de Turnos con Bloqueo:** Selector de identidad que desactiva los botones para el jugador que no tiene el turno, garantizando un juego justo y ordenado.
-
----
-
-## ✨ Características Principales
-
-### 🎨 Diseño Visual de Alto Impacto
-* **Líneas Neón:** Trazos de **8px** con efectos de brillo (glow) en Púrpura (Tutu) y Naranja (Abuelita).
-* **Tablero Rígido:** Una cuadrícula perfectamente alineada de 4x4 cuadros.
-* **Animaciones Pop:** Los cuadros cerrados aparecen con un efecto elástico suave.
-
-### 🎊 Efectos Especiales y Sonido
-* **Lluvia de Globos:** Cada vez que un jugador conquista un cuadro, una ráfaga de globos inunda su pantalla.
-* **Explosión de Estrellas ⭐:** Al finalizar la partida, una lluvia de estrellas doradas celebra al ganador.
-* **Corona Real 👑:** Mensaje final gigante con el nombre del campeón.
-* **Audio Integrado:** Sonidos de clic para líneas y fanfarria para la victoria.
+* **Sincronización en Tiempo Real:** Uso de `@st.cache_resource` y `st_autorefresh` para que los movimientos se reflejen en ambos dispositivos cada 2 segundos.
+* **Diseño 100% Responsivo:** Implementación de CSS con `flex-wrap: nowrap` y unidades adaptables para que el tablero mantenga su forma perfecta tanto en computadoras como en teléfonos móviles.
+* **Interfaz "Zero-Jump":** Estructura rígida que evita que el tablero se mueva o cambie de tamaño al marcar las líneas.
+* **Sistema de Identidad:** Selector de jugador que bloquea el tablero cuando no es tu turno, evitando errores o jugadas dobles.
 
 ---
 
-## 🛠️ Guía de Instalación Local (Paso a paso con Anaconda)
+## ✨ Características Especiales
 
-Para replicar este entorno de desarrollo en tu computadora, seguimos estos pasos utilizando la terminal de **Anaconda Prompt**:
+### 🎨 Estética Neón y Moderna
+* **Líneas de 8px:** Trazos gruesos con efectos de brillo (Glow) en Púrpura y Naranja.
+* **Animaciones Pop:** Los cuadros conquistados aparecen con un efecto visual elástico.
+* **Fondo Dinámico:** Gradiente radial profundo para una atmósfera de juego nocturno.
 
-1.  **Crear el entorno virtual:**
-    Creamos un espacio aislado para evitar conflictos con otras librerías.
+### 🎊 Efectos de Celebración
+* **Globos de Punto:** Lluvia de globos cada vez que un jugador completa un cuadro.
+* **Explosión Estelar ⭐:** Al finalizar, 80 estrellas doradas vuelan desde el centro de la pantalla celebrando al ganador.
+* **Corona Real 👑:** Un panel final gigante con el nombre del campeón y el marcador definitivo.
+
+### 🔊 Paisaje Sonoro
+* Generación de audio en tiempo real para sonidos de clic, cierre de cuadro y fanfarria de victoria.
+
+---
+
+## 🛠️ Instalación y Uso (Anaconda)
+
+Si quieres ejecutar este juego localmente o seguir desarrollándolo:
+
+1.  **Crea el entorno:**
     ```bash
     conda create --name timbiriche python=3.10
-    ```
-
-2.  **Activar el entorno:**
-    ```bash
     conda activate timbiriche
     ```
-
-3.  **Instalar dependencias necesarias:**
-    Instalamos el motor web y las herramientas de cálculo y sincronización.
+2.  **Instala las dependencias:**
     ```bash
     pip install streamlit numpy streamlit-autorefresh
     ```
-
-4.  **Ejecutar el juego:**
-    Navega hasta la carpeta del proyecto y lanza la aplicación.
+3.  **Lanza el juego:**
     ```bash
     streamlit run timbiriche.py
     ```
 
 ---
 
-## 🌍 Despliegue (Deploy)
-El juego está optimizado para ser alojado en **Streamlit Cloud**. Para ello, el repositorio incluye:
-* `timbiriche.py`: El código fuente principal.
-* `requirements.txt`: La lista de librerías para que el servidor sepa qué instalar automáticamente.
-
 ## 📖 Reglas del Juego
-1.  **Identidad:** Selecciona quién eres en la barra lateral (**Tutu** o **Abuelita**).
-2.  **Turnos:** Solo puedes marcar una línea cuando el sistema indique que es tu turno.
-3.  **Puntos:** Si cierras un cuadro, ganas un punto y **vuelves a tirar**.
-4.  **Victoria:** El juego termina cuando se completan los 16 cuadros. ¡El que tenga más puntos se lleva la corona!
+1.  **Selecciona tu bando:** En la barra lateral, elige si eres **Tutu** o la **Abuelita**.
+2.  **Marca líneas:** Haz clic en los espacios grises entre los puntos.
+3.  **Repite turno:** Si cierras un cuadro, sumas un punto y ¡tienes un tiro extra!
+4.  **Gana el mejor:** Al completar los 16 cuadros, el sistema coronará al ganador.
 
 ---
-*Desarrollado con ❤️ para unir a la familia a través de la tecnología.*
+*Desarrollado con ❤️ para demostrar que la tecnología no tiene edad cuando se trata de divertirse en familia.*
