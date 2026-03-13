@@ -9,28 +9,39 @@ from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(page_title="Timbiriche · Tutu vs Abuelita", layout="wide")
 
-# Mantener sincronizado (cada 2 segundos)
+# Sincronización cada 2 segundos
 st_autorefresh(interval=2000, key="datarefresh")
 
 # ────────────────────────────────────────────
-# ESTILO CSS (FIJO PARA EVITAR SALTOS)
+# CSS OPTIMIZADO (VISIBILIDAD TOTAL)
 # ────────────────────────────────────────────
-st.markdown(f"""
+st.markdown("""
 <style>
-.stApp {{ background: radial-gradient(ellipse at 20% 0%, #0d1b3e 0%, #020814 55%, #01040d 100%); }}
-div[data-testid="stHorizontalBlock"] {{ gap: 0px !important; align-items: center; }}
-[data-testid="column"] {{ min-width:0px !important; flex-basis:auto !important; padding: 0px 2px !important; }}
-.punto {{ display:flex; align-items:center; justify-content:center; height:50px; width:100%; font-size:16px; color:rgba(255,255,255,0.6); }}
-.linea-h-tutu::before {{ content:""; display:block; width:90%; border-top:6px solid #6A4CFF; border-radius:10px; }}
-.linea-h-abuelita::before{{ content:""; display:block; width:90%; border-top:6px solid #E05B20; border-radius:10px; }}
-.linea-v-tutu::before {{ content:""; display:block; height:90%; border-left:6px solid #6A4CFF; border-radius:10px; }}
-.linea-v-abuelita::before{{ content:""; display:block; height:90%; border-left:6px solid #E05B20; border-radius:10px; }}
-.cuadro-tutu {{ background: linear-gradient(135deg, #6A4CFFcc 0%, #4F46D7cc 100%); height:50px; width:100%; border-radius:8px; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; }}
-.cuadro-abuelita {{ background: linear-gradient(135deg, #E05B20cc 0%, #9A3D10cc 100%); height:50px; width:100%; border-radius:8px; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; }}
-button[kind="secondary"] {{ width:100% !important; height:50px !important; background:transparent !important; border:1px solid rgba(255,255,255,0.04) !important; color:transparent !important; margin:0 !important; cursor:pointer !important; }}
-button[kind="secondary"]:hover:not(:disabled) {{ background:rgba(255,255,255,0.08) !important; }}
-.scorecard {{ background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:10px 20px; margin-bottom:10px; }}
-h1 {{ color: white !important; text-align: center; }}
+.stApp { background: radial-gradient(ellipse at 20% 0%, #0d1b3e 0%, #020814 55%, #01040d 100%); }
+
+/* Forzar que las columnas no se muevan ni oculten nada */
+div[data-testid="stHorizontalBlock"] { gap: 0px !important; align-items: center; }
+[data-testid="column"] { min-width:0px !important; flex-basis:auto !important; padding: 0px 1px !important; }
+
+.punto { display:flex; align-items:center; justify-content:center; height:50px; width:100%; font-size:18px; color:white; font-weight:bold; }
+
+/* Líneas más gruesas y visibles */
+.linea-h-tutu::before { content:""; display:block; width:100%; border-top:7px solid #6A4CFF; border-radius:10px; box-shadow: 0 0 10px #6A4CFF; }
+.linea-h-abuelita::before { content:""; display:block; width:100%; border-top:7px solid #E05B20; border-radius:10px; box-shadow: 0 0 10px #E05B20; }
+.linea-v-tutu::before { content:""; display:block; height:100%; border-left:7px solid #6A4CFF; border-radius:10px; margin: auto; box-shadow: 0 0 10px #6A4CFF; }
+.linea-v-abuelita::before { content:""; display:block; height:100%; border-left:7px solid #E05B20; border-radius:10px; margin: auto; box-shadow: 0 0 10px #E05B20; }
+
+/* Cuadros */
+.cuadro-tutu { background: linear-gradient(135deg, #6A4CFF 0%, #4F46D7 100%); height:50px; width:100%; border-radius:8px; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:20px; }
+.cuadro-abuelita { background: linear-gradient(135deg, #E05B20 0%, #9A3D10 100%); height:50px; width:100%; border-radius:8px; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:20px; }
+
+/* Botones invisibles pero clickeables */
+button[kind="secondary"] { width:100% !important; height:50px !important; background:transparent !important; border:1px solid rgba(255,255,255,0.08) !important; color:transparent !important; margin:0 !important; }
+button[kind="secondary"]:hover:not(:disabled) { background:rgba(255,255,255,0.15) !important; border:1px solid white !important; }
+
+/* Corona y Mensajes */
+.corona-gigante { font-size: 80px; text-align: center; margin: 0; }
+.texto-ganador { font-size: 40px; font-weight: 900; text-align: center; color: #FFD700; text-shadow: 0 0 20px #FFD700; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -42,17 +53,18 @@ def _gen_audio(frec):
     buffer = io.BytesIO()
     with wave.open(buffer, "wb") as f:
         f.setnchannels(1); f.setsampwidth(2); f.setframerate(22050)
-        for i in range(int(22050 * 0.2)):
+        for i in range(int(22050 * 0.22)):
             t = i / 22050
-            val = int(32767 * 0.3 * math.sin(2 * math.pi * frec * t))
+            env = 1 - (i / (22050 * 0.22))
+            val = int(32767 * 0.3 * env * math.sin(2 * math.pi * frec * t))
             f.writeframes(struct.pack("<h", val))
     return base64.b64encode(buffer.getvalue()).decode()
 
-SND_CUADRO = _gen_audio(880)
+SND_CUADRO = _gen_audio(1000)
 SND_VICTORIA = _gen_audio(523)
 
 # ────────────────────────────────────────────
-# ESTADO COMPARTIDO
+# ESTADO DEL JUEGO
 # ────────────────────────────────────────────
 @st.cache_resource
 def get_juego():
@@ -65,38 +77,27 @@ def get_juego():
 
 juego = get_juego()
 
-# ────────────────────────────────────────────
-# LÓGICA DE EFECTOS (GLOBOS Y ESTRELLAS)
-# ────────────────────────────────────────────
-if "puntos_vistos" not in st.session_state:
-    st.session_state.puntos_vistos = 0
-if "victoria_festejada" not in st.session_state:
-    st.session_state.victoria_festejada = False
+# Lógica de efectos para que no se pierdan al refrescar
+if "puntos_locales" not in st.session_state:
+    st.session_state.puntos_locales = 0
+if "fin_festejado" not in st.session_state:
+    st.session_state.fin_festejado = False
 
-total_puntos = sum(juego["puntos"].values())
-fin = len(juego["cuadros"]) == 16
-
-# ¿Alguien anotó un cuadro nuevo? -> Globos
-if total_puntos > st.session_state.puntos_vistos:
+# Lanzar Globos si alguien anotó
+total_actual = sum(juego["puntos"].values())
+if total_actual > st.session_state.puntos_locales:
     st.balloons()
     st.markdown(f'<audio autoplay style="display:none;"><source src="data:audio/wav;base64,{SND_CUADRO}"></audio>', unsafe_allow_html=True)
-    st.session_state.puntos_vistos = total_puntos
-
-# ¿Se acabó el juego? -> Estrellas (Snow)
-if fin and not st.session_state.victoria_festejada:
-    st.snow()
-    st.markdown(f'<audio autoplay style="display:none;"><source src="data:audio/wav;base64,{SND_VICTORIA}"></audio>', unsafe_allow_html=True)
-    st.session_state.victoria_festejada = True
+    st.session_state.puntos_locales = total_actual
 
 # ────────────────────────────────────────────
-# LÓGICA DE MOVIMIENTO
+# LÓGICA DE REGISTRO
 # ────────────────────────────────────────────
 def registrar(tipo, r, c):
     h, v = juego["lineas_h"], juego["lineas_v"]
     jugador = juego["turno"]
     if tipo == "h": h[r, c] = True; juego["duenos_h"][r, c] = jugador
     else: v[r, c] = True; juego["duenos_v"][r, c] = jugador
-    
     anoto = False
     for row in range(4):
         for col in range(4):
@@ -109,24 +110,23 @@ def registrar(tipo, r, c):
         juego["turno"] = "Abuelita" if jugador == "Tutu" else "Tutu"
 
 # ────────────────────────────────────────────
-# SIDEBAR E INTERFAZ
+# INTERFAZ
 # ────────────────────────────────────────────
 with st.sidebar:
     st.title("⚙️ Jugador")
-    usuario = st.radio("¿Quién eres?", ["Tutu", "Abuelita"], horizontal=True)
+    usuario = st.radio("¿Quién eres tú?", ["Tutu", "Abuelita"], horizontal=True)
     st.divider()
-    st.write(f"### Turno de: **{juego['turno']}**")
-    for j in ["Tutu", "Abuelita"]:
-        color = "#6A4CFF" if j == "Tutu" else "#E05B20"
-        st.markdown(f'<div class="scorecard" style="border-color:{color}; color:{color};"><strong>{j}</strong>: {juego["puntos"][j]} pts</div>', unsafe_allow_html=True)
-    
-    if st.button("🔄 Reiniciar Todo", type="primary"):
+    st.write(f"### Turno de: {juego['turno']}")
+    st.metric("🔵 Tutu", f"{juego['puntos']['Tutu']} pts")
+    st.metric("🔴 Abuelita", f"{juego['puntos']['Abuelita']} pts")
+    if st.button("🔄 Reiniciar Todo", type="primary", use_container_width=True):
         juego["puntos"] = {"Tutu": 0, "Abuelita": 0}; juego["cuadros"].clear()
         juego["lineas_h"].fill(False); juego["lineas_v"].fill(False)
-        st.session_state.puntos_vistos = 0; st.session_state.victoria_festejada = False
+        st.session_state.puntos_locales = 0; st.session_state.fin_festejado = False
         st.rerun()
 
 st.title("🕹️ Timbiriche")
+fin = len(juego["cuadros"]) == 16
 es_mi_turno = (usuario == juego["turno"]) and not fin
 
 # Dibujar Tablero
@@ -159,5 +159,19 @@ for r in range(5):
                 else:
                     cols_v[c*2+1].markdown("<div style='height:50px;'></div>", unsafe_allow_html=True)
 
+# ────────────────────────────────────────────
+# FINAL DE PARTIDA (CON CORONA Y ESTRELLAS)
+# ────────────────────────────────────────────
 if fin:
-    st.success(f"👑 ¡FIN DE LA PARTIDA!")
+    if not st.session_state.fin_festejado:
+        st.snow() # Lluvia de estrellas
+        st.markdown(f'<audio autoplay style="display:none;"><source src="data:audio/wav;base64,{SND_VICTORIA}"></audio>', unsafe_allow_html=True)
+        st.session_state.fin_festejado = True
+    
+    ganador = "Tutu" if juego["puntos"]["Tutu"] > juego["puntos"]["Abuelita"] else "Abuelita"
+    if juego["puntos"]["Tutu"] == juego["puntos"]["Abuelita"]: ganador = "Empate"
+    
+    st.markdown(f"""
+    <div class="corona-gigante">👑</div>
+    <div class="texto-ganador">¡GANÓ {ganador.upper()}!</div>
+    """, unsafe_allow_html=True)
