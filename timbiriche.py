@@ -161,7 +161,7 @@ div[data-testid="stHorizontalBlock"] {{
 # ────────────────────────────────────────────
 # AUTO-REFRESH cada 2 s (multiplayer sync)
 # ────────────────────────────────────────────
-st_autorefresh(interval=3000, key="datarefresh")
+st_autorefresh(interval=2000, key="datarefresh")
 
 # ────────────────────────────────────────────
 # AUDIO
@@ -229,59 +229,107 @@ if nuevo_cuadro:
 if total_cuadros_ahora == 0:
     st.session_state.fin_celebrado = False
 
-# ── Globos CSS/JS: se inyectan con un key único para que cada cuadro dispare la animación ──
-def lanzar_globos(n_cuadros: int):
-    colores = ["#6A4CFF","#E05B20","#FFD700","#FF4F8B","#00E5FF","#7FFF00","#FF6B6B"]
-    globos_html = ""
-    for i in range(18):
-        left  = (i * 37 + i * i * 13) % 100
-        delay = round((i * 0.18) % 2.2, 2)
-        dur   = round(2.4 + (i % 5) * 0.3, 2)
-        color = colores[i % len(colores)]
-        size  = 24 + (i % 4) * 8
-        globos_html += f"""
-        <div style="
-            position:fixed; left:{left}%; bottom:-120px;
-            font-size:{size}px; animation:subirGlobo {dur}s {delay}s ease-in forwards;
-            z-index:9999; pointer-events:none; user-select:none;
-        ">🎈</div>"""
+# ── Efectos visuales: JS que escapa el iframe e inyecta en el body del padre ──
+def lanzar_globos(seed: int):
+    """18 globos que suben desde abajo. Inyectados en window.parent.document para escapar el iframe."""
     st.markdown(f"""
-    <style>
-    @keyframes subirGlobo {{
-        0%   {{ transform: translateY(0) rotate(-8deg); opacity:1; }}
-        50%  {{ transform: translateY(-55vh) rotate(8deg) scale(1.1); opacity:1; }}
-        100% {{ transform: translateY(-110vh) rotate(-5deg); opacity:0; }}
-    }}
-    </style>
-    <div id="globos_{n_cuadros}">{globos_html}</div>
+    <script>
+    (function() {{
+        var doc = window.parent.document;
+        var old = doc.getElementById('fx_globos');
+        if (old) old.remove();
+
+        var style = doc.getElementById('fx_style_globos');
+        if (!style) {{
+            style = doc.createElement('style');
+            style.id = 'fx_style_globos';
+            style.textContent = `
+                @keyframes subirGlobo {{
+                    0%   {{ transform: translateY(0) rotate(-10deg); opacity:1; }}
+                    60%  {{ transform: translateY(-60vh) rotate(10deg) scale(1.15); opacity:1; }}
+                    100% {{ transform: translateY(-115vh) rotate(-6deg); opacity:0; }}
+                }}
+            `;
+            doc.head.appendChild(style);
+        }}
+
+        var wrap = doc.createElement('div');
+        wrap.id = 'fx_globos';
+        wrap.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:99999;overflow:hidden;';
+
+        var data = [{seed}];
+        var emojis = ['🎈'];
+        for (var i = 0; i < 22; i++) {{
+            var el = doc.createElement('div');
+            var left  = (i * 41 + i * i * 17 + {seed} * 3) % 100;
+            var delay = ((i * 190 + {seed}) % 2200) / 1000;
+            var dur   = 2.3 + (i % 5) * 0.35;
+            var size  = 22 + (i % 5) * 9;
+            el.textContent = '🎈';
+            el.style.cssText = `position:absolute;left:${{left}}%;bottom:-80px;font-size:${{size}}px;animation:subirGlobo ${{dur}}s ${{delay}}s ease-in forwards;`;
+            wrap.appendChild(el);
+        }}
+        doc.body.appendChild(wrap);
+
+        // Auto-limpiar después de 5s
+        setTimeout(function() {{ var w = doc.getElementById('fx_globos'); if(w) w.remove(); }}, 5000);
+    }})();
+    </script>
     """, unsafe_allow_html=True)
 
 def lanzar_estrellas():
-    chars = ["⭐","🌟","✨","💫","⭐","🌟","✨","💫","⭐","🌟"]
-    items = ""
-    for i in range(40):
-        left  = (i * 43 + i * 7) % 100
-        delay = round((i * 0.12) % 3.5, 2)
-        dur   = round(2.5 + (i % 6) * 0.4, 2)
-        size  = 16 + (i % 5) * 8
-        ch    = chars[i % len(chars)]
-        items += f"""
-        <div style="
-            position:fixed; left:{left}%; top:-60px;
-            font-size:{size}px;
-            animation:caerEstrella {dur}s {delay}s linear forwards;
-            z-index:9999; pointer-events:none; user-select:none;
-        ">{ch}</div>"""
+    """40 estrellas que caen desde arriba en toda la pantalla, en loop continuo."""
     st.markdown(f"""
-    <style>
-    @keyframes caerEstrella {{
-        0%   {{ transform: translateY(0) rotate(0deg);   opacity:0; }}
-        10%  {{ opacity:1; }}
-        90%  {{ opacity:1; }}
-        100% {{ transform: translateY(105vh) rotate(360deg); opacity:0; }}
-    }}
-    </style>
-    <div id="estrellas_fin">{items}</div>
+    <script>
+    (function() {{
+        var doc = window.parent.document;
+        var old = doc.getElementById('fx_estrellas');
+        if (old) old.remove();
+
+        var style = doc.getElementById('fx_style_estrellas');
+        if (!style) {{
+            style = doc.createElement('style');
+            style.id = 'fx_style_estrellas';
+            style.textContent = `
+                @keyframes caerEstrella {{
+                    0%   {{ transform: translateY(-80px) rotate(0deg);   opacity:0; }}
+                    8%   {{ opacity:1; }}
+                    88%  {{ opacity:1; }}
+                    100% {{ transform: translateY(105vh) rotate(400deg); opacity:0; }}
+                }}
+            `;
+            doc.head.appendChild(style);
+        }}
+
+        var wrap = doc.createElement('div');
+        wrap.id = 'fx_estrellas';
+        wrap.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:99999;overflow:hidden;';
+
+        var chars = ['⭐','🌟','✨','💫','⭐','🌟','✨','💫','🌟','✨'];
+        for (var i = 0; i < 50; i++) {{
+            var el  = doc.createElement('div');
+            var left  = (i * 43 + i * 7) % 100;
+            var delay = ((i * 130) % 4000) / 1000;
+            var dur   = 2.2 + (i % 7) * 0.45;
+            var size  = 14 + (i % 6) * 9;
+            el.textContent = chars[i % chars.length];
+            el.style.cssText = `position:absolute;left:${{left}}%;top:-70px;font-size:${{size}}px;animation:caerEstrella ${{dur}}s ${{delay}}s linear infinite;`;
+            wrap.appendChild(el);
+        }}
+        doc.body.appendChild(wrap);
+    }})();
+    </script>
+    """, unsafe_allow_html=True)
+
+def limpiar_estrellas():
+    st.markdown("""
+    <script>
+    (function() {
+        var doc = window.parent.document;
+        var w = doc.getElementById('fx_estrellas'); if(w) w.remove();
+        var w2 = doc.getElementById('fx_globos');   if(w2) w2.remove();
+    })();
+    </script>
     """, unsafe_allow_html=True)
 
 if nuevo_cuadro and not fin_ahora:
@@ -380,7 +428,10 @@ with st.sidebar:
     st.divider()
 
     if st.button("🔄 Reiniciar partida", use_container_width=True, type="primary"):
+        limpiar_estrellas()
         reiniciar()
+        st.session_state.cuadros_vistos = 0
+        st.session_state.fin_celebrado = False
         st.rerun()
 
     # Historial de jugadas (últimas 10)
@@ -497,10 +548,8 @@ if fin_ahora:
     # Estrellas + sonido solo la primera vez que se detecta el fin
     if not st.session_state.fin_celebrado:
         play(SND_VICTORIA)
-        lanzar_estrellas()
         st.session_state.fin_celebrado = True
-    else:
-        lanzar_estrellas()  # seguir mostrando mientras esté en pantalla
+    lanzar_estrellas()
 
     # Banner con corona y nombre del ganador
     if ganador:
@@ -553,6 +602,7 @@ if fin_ahora:
 
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("🔄 Nueva partida", type="primary", use_container_width=True):
+        limpiar_estrellas()
         reiniciar()
         st.session_state.cuadros_vistos = 0
         st.session_state.fin_celebrado = False
