@@ -2,7 +2,7 @@
 
 <p align="center">
   <!-- Reemplaza esta ruta por la de tu logo real en el repo -->
-  <img src="timbiriche.JPG" alt="Logo Claud-IA" width="220"/>
+  <img src="timbiriche.JPG" alt="Logo Claud-IA" width="620"/>
 </p>
 
 ¡Bienvenido a la versión definitiva de **Timbiriche Pro**! Este proyecto transforma el clásico juego de puntos y líneas en una experiencia digital competitiva, diseñada para que **Tutu** y su **Abuelita** jueguen en tiempo real con efectos visuales de alta calidad.
