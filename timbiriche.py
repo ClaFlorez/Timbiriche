@@ -227,69 +227,79 @@ if nuevo_cuadro:
 
 # ── Efectos visuales con components.html (único método que ejecuta JS real en Streamlit) ──
 def lanzar_globos(seed: int):
-    """22 globos suben desde abajo, inyectados en window.parent para cubrir toda la pantalla."""
+    """22 globos: el iframe se hace fullscreen desde adentro via JS."""
+    globos = ""
+    for i in range(22):
+        left  = (i * 41 + i * i * 17 + seed * 3) % 100
+        delay = round(((i * 190 + seed) % 2200) / 1000, 2)
+        dur   = round(2.4 + (i % 5) * 0.3, 2)
+        sz    = 24 + (i % 5) * 10
+        globos += f'<div style="position:fixed;left:{left}%;bottom:-90px;font-size:{sz}px;animation:subirG {dur}s {delay}s ease-in forwards;pointer-events:none;">🎈</div>'
     components.html(f"""
+    <style>
+      * {{ margin:0; padding:0; box-sizing:border-box; }}
+      html, body {{ width:100%; height:100%; background:transparent !important; overflow:hidden; }}
+      @keyframes subirG {{
+        0%   {{ transform:translateY(0) rotate(-12deg); opacity:1; }}
+        60%  {{ transform:translateY(-65vh) rotate(12deg) scale(1.1); opacity:1; }}
+        100% {{ transform:translateY(-130vh) rotate(-5deg); opacity:0; }}
+      }}
+    </style>
     <script>
-    var doc = window.parent.document;
-    var old = doc.getElementById('fx_globos'); if(old) old.remove();
-    var st = doc.getElementById('fx_st_globos'); if(st) st.remove();
-    var s = doc.createElement('style'); s.id='fx_st_globos';
-    s.textContent = '@keyframes subirG{{0%{{transform:translateY(0) rotate(-12deg);opacity:1}}60%{{transform:translateY(-65vh) rotate(12deg) scale(1.1);opacity:1}}100%{{transform:translateY(-120vh) rotate(-5deg);opacity:0}}}}';
-    doc.head.appendChild(s);
-    var w = doc.createElement('div'); w.id='fx_globos';
-    w.style='position:fixed;inset:0;pointer-events:none;z-index:999999;overflow:hidden;';
-    for(var i=0;i<22;i++){{
-      var e=doc.createElement('span');
-      var left=(i*41+i*i*17+{seed}*3)%100;
-      var delay=((i*190+{seed})%2200)/1000;
-      var dur=2.4+(i%5)*0.3;
-      var sz=24+(i%5)*10;
-      e.textContent='🎈';
-      e.style='position:absolute;left:'+left+'%;bottom:-90px;font-size:'+sz+'px;animation:subirG '+dur+'s '+delay+'s ease-in forwards;';
-      w.appendChild(e);
-    }}
-    doc.body.appendChild(w);
-    setTimeout(function(){{var x=doc.getElementById('fx_globos');if(x)x.remove();}},5500);
+      // Hacer el iframe fullscreen desde adentro
+      try {{
+        var fr = window.frameElement;
+        if(fr) {{
+          fr.style.cssText = 'position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;border:none!important;pointer-events:none!important;z-index:99999!important;background:transparent!important;';
+        }}
+      }} catch(e) {{}}
     </script>
-    """, height=0)
+    {globos}
+    <script>setTimeout(function(){{
+      try{{ var fr=window.frameElement; if(fr) fr.style.display='none'; }}catch(e){{}}
+      document.body.innerHTML='';
+    }}, 5500);</script>
+    """, height=1, scrolling=False)
 
 def lanzar_estrellas(seed: int):
-    """50 estrellas caen una sola vez. seed único fuerza re-render en Streamlit."""
+    """50 estrellas: el iframe se hace fullscreen desde adentro via JS."""
+    chars = ['⭐','🌟','✨','💫','🌟','✨','⭐','💫','🌟','✨']
+    items = ""
+    for i in range(50):
+        left  = (i * 43 + i * 7) % 100
+        delay = round(((i * 130 + seed) % 4500) / 1000, 2)
+        dur   = round(2.5 + (i % 7) * 0.45, 2)
+        sz    = 16 + (i % 6) * 9
+        ch    = chars[i % len(chars)]
+        items += f'<div style="position:fixed;left:{left}%;top:-80px;font-size:{sz}px;animation:caerE {dur}s {delay}s linear forwards;pointer-events:none;">{ch}</div>'
     components.html(f"""
+    <style>
+      * {{ margin:0; padding:0; box-sizing:border-box; }}
+      html, body {{ width:100%; height:100%; background:transparent !important; overflow:hidden; }}
+      @keyframes caerE {{
+        0%   {{ transform:translateY(-90px) rotate(0deg);  opacity:0; }}
+        8%   {{ opacity:1; }}
+        88%  {{ opacity:1; }}
+        100% {{ transform:translateY(200vh) rotate(420deg); opacity:0; }}
+      }}
+    </style>
     <script>
-    var doc = window.parent.document;
-    var old = doc.getElementById('fx_estrellas'); if(old) old.remove();
-    var s = doc.getElementById('fx_st_estrellas');
-    if(!s){{ s=doc.createElement('style'); s.id='fx_st_estrellas';
-      s.textContent='@keyframes caerE{{0%{{transform:translateY(-90px) rotate(0deg);opacity:0}}8%{{opacity:1}}88%{{opacity:1}}100%{{transform:translateY(106vh) rotate(420deg);opacity:0}}}}';
-      doc.head.appendChild(s); }}
-    var w=doc.createElement('div'); w.id='fx_estrellas';
-    w.style='position:fixed;inset:0;pointer-events:none;z-index:999999;overflow:hidden;';
-    var chars=['⭐','🌟','✨','💫','🌟','✨','⭐','💫','🌟','✨'];
-    for(var i=0;i<50;i++){{
-      var e=doc.createElement('span');
-      var left=(i*43+i*7)%100;
-      var delay=((i*130+{seed})%4500)/1000;
-      var dur=2.5+(i%7)*0.45;
-      var sz=16+(i%6)*9;
-      e.textContent=chars[i%chars.length];
-      e.style='position:absolute;left:'+left+'%;top:-80px;font-size:'+sz+'px;animation:caerE '+dur+'s '+delay+'s linear forwards;';
-      w.appendChild(e);
-    }}
-    doc.body.appendChild(w);
-    setTimeout(function(){{ var x=doc.getElementById('fx_estrellas'); if(x)x.remove(); }}, 10000);
+      try {{
+        var fr = window.frameElement;
+        if(fr) {{
+          fr.style.cssText = 'position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;border:none!important;pointer-events:none!important;z-index:99999!important;background:transparent!important;';
+        }}
+      }} catch(e) {{}}
     </script>
-    """, height=0)
+    {items}
+    <script>setTimeout(function(){{
+      try{{ var fr=window.frameElement; if(fr) fr.style.display='none'; }}catch(e){{}}
+      document.body.innerHTML='';
+    }}, 10000);</script>
+    """, height=1, scrolling=False)
 
 def limpiar_efectos():
-    components.html("""
-    <script>
-    var doc = window.parent.document;
-    ['fx_globos','fx_estrellas','fx_st_globos','fx_st_estrellas'].forEach(function(id){
-      var el=doc.getElementById(id); if(el) el.remove();
-    });
-    </script>
-    """, height=0)
+    pass  # Los iframes de components.html desaparecen solos al hacer st.rerun()
 
 if nuevo_cuadro and not fin_ahora:
     lanzar_globos(total_cuadros_ahora)
