@@ -145,6 +145,22 @@ h1 {{ color:white !important; text-align:center;
     60%  {{ opacity:1; }}
     100% {{ transform:translate(calc(-50% + var(--tw)), calc(-50% + var(--th))) scale(1.2) rotate(var(--tr)); opacity:0; }}
 }}
+/* --- TRUCO PARA CELULARES: MANTENER EL TABLERO EN UNA FILA --- */
+div[data-testid="stHorizontalBlock"] {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important; /* Prohibido que las columnas se bajen */
+    width: 100% !important;
+}
+
+/* Ajustar el tamaño de los puntos y cuadros en pantallas pequeñas */
+@media (max-width: 600px) {
+    .punto { font-size: 14px !important; height: 40px !important; }
+    .cuadro-tutu, .cuadro-abuelita { height: 40px !important; font-size: 16px !important; }
+    button[kind="secondary"] { height: 40px !important; }
+    .linea-v-tutu, .linea-v-abuelita { height: 40px !important; }
+    h1 { font-size: 1.5rem !important; }
+}
 </style>
 """, unsafe_allow_html=True)
 
