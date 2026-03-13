@@ -32,50 +32,50 @@ div[data-testid="stHorizontalBlock"] {{ gap:0px !important; align-items:center; 
 
 /* ── Puntos ── */
 .punto {{ display:flex; align-items:center; justify-content:center;
-    height:60px; width:100%; font-size:20px; color:white; font-weight:bold; }}
+    height:40px; width:100%; font-size:14px; color:white; font-weight:bold; }}
 
 /* ── Líneas horizontales ── */
 .linea-h-tutu, .linea-h-abuelita {{
-    height:60px; display:flex; align-items:center; justify-content:center;
+    height:40px; display:flex; align-items:center; justify-content:center;
 }}
 .linea-h-tutu::before {{
     content:""; display:block; width:100%;
-    border-top:8px solid {COLOR_TUTU}; border-radius:10px;
+    border-top:6px solid {COLOR_TUTU}; border-radius:10px;
     box-shadow:0 0 12px {COLOR_TUTU}99;
 }}
 .linea-h-abuelita::before {{
     content:""; display:block; width:100%;
-    border-top:8px solid {COLOR_ABUELITA}; border-radius:10px;
+    border-top:6px solid {COLOR_ABUELITA}; border-radius:10px;
     box-shadow:0 0 12px {COLOR_ABUELITA}99;
 }}
 
 /* ── Líneas verticales ── */
 .linea-v-tutu, .linea-v-abuelita {{
-    display:flex; justify-content:center; height:60px; width:100%;
+    display:flex; justify-content:center; height:40px; width:100%;
 }}
 .linea-v-tutu::before {{
     content:""; display:block; height:100%;
-    border-left:8px solid {COLOR_TUTU}; border-radius:10px; margin:auto;
+    border-left:6px solid {COLOR_TUTU}; border-radius:10px; margin:auto;
     box-shadow:0 0 12px {COLOR_TUTU}99;
 }}
 .linea-v-abuelita::before {{
     content:""; display:block; height:100%;
-    border-left:8px solid {COLOR_ABUELITA}; border-radius:10px; margin:auto;
+    border-left:6px solid {COLOR_ABUELITA}; border-radius:10px; margin:auto;
     box-shadow:0 0 12px {COLOR_ABUELITA}99;
 }}
 
 /* ── Cuadros conquistados ── */
 .cuadro-tutu {{
     background:linear-gradient(135deg,{COLOR_TUTU},{COLOR_TUTU}99);
-    height:60px; width:100%; border-radius:8px;
+    height:40px; width:100%; border-radius:8px;
     display:flex; align-items:center; justify-content:center;
-    color:white; font-weight:900; font-size:22px; animation:pop .25s ease;
+    color:white; font-weight:900; font-size:16px; animation:pop .25s ease;
 }}
 .cuadro-abuelita {{
     background:linear-gradient(135deg,{COLOR_ABUELITA},{COLOR_ABUELITA}99);
-    height:60px; width:100%; border-radius:8px;
+    height:40px; width:100%; border-radius:8px;
     display:flex; align-items:center; justify-content:center;
-    color:white; font-weight:900; font-size:22px; animation:pop .25s ease;
+    color:white; font-weight:900; font-size:16px; animation:pop .25s ease;
 }}
 @keyframes pop {{
     0%   {{ transform:scale(0.6); opacity:0; }}
@@ -85,7 +85,7 @@ div[data-testid="stHorizontalBlock"] {{ gap:0px !important; align-items:center; 
 
 /* ── Botones del tablero ── */
 button[kind="secondary"] {{
-    width:100% !important; height:60px !important;
+    width:100% !important; height:40px !important;
     background:transparent !important;
     border:1px solid rgba(255,255,255,0.08) !important;
     color:transparent !important; margin:0 !important;
@@ -201,13 +201,10 @@ juego = get_juego()
 # ────────────────────────────────────────────
 if "pts_vistos" not in st.session_state:
     st.session_state.pts_vistos = 0
-if "fin_festejado" not in st.session_state:
-    st.session_state.fin_festejado = False
-
 total_pts = sum(juego["puntos"].values())
 fin       = len(juego["cuadros"]) == FILAS * COLS
 
-# 🎈 Globos nativos de Streamlit al anotar — siempre funcionan
+# 🎈 Globos al anotar cuadro
 if total_pts > st.session_state.pts_vistos and not fin:
     st.balloons()
     play(SND_CUADRO)
@@ -216,7 +213,6 @@ if total_pts > st.session_state.pts_vistos and not fin:
 # Reset al reiniciar
 if total_pts == 0 and len(juego["cuadros"]) == 0:
     st.session_state.pts_vistos    = 0
-    st.session_state.fin_festejado = False
 
 # ────────────────────────────────────────────
 # LÓGICA DEL JUEGO
@@ -288,8 +284,7 @@ with st.sidebar:
 
     if st.button("🔄 Reiniciar partida", use_container_width=True, type="primary"):
         reiniciar()
-        st.session_state.pts_vistos    = 0
-        st.session_state.fin_festejado = False
+        st.session_state.pts_vistos = 0
         st.rerun()
 
     if juego["historial"]:
@@ -318,8 +313,8 @@ if not fin:
 # ────────────────────────────────────────────
 col_widths = []
 for _ in range(COLS):
-    col_widths += [0.6, 3]
-col_widths.append(0.6)
+    col_widths += [0.4, 2.5]
+col_widths.append(0.4)
 
 h  = juego["lineas_h"]; v  = juego["lineas_v"]
 dh = juego["duenos_h"]; dv = juego["duenos_v"]
@@ -357,7 +352,7 @@ for r in range(FILAS + 1):
                         f"<div class='{cls}'>{own[0]}</div>", unsafe_allow_html=True)
                 else:
                     cols_v[c*2+1].markdown(
-                        "<div style='height:60px;'></div>", unsafe_allow_html=True)
+                        "<div style='height:40px;'></div>", unsafe_allow_html=True)
 
 # ────────────────────────────────────────────
 # PANTALLA FINAL
@@ -368,25 +363,27 @@ if fin:
     elif pa > pt: ganador, cg = "Abuelita", COLOR_ABUELITA
     else:         ganador, cg = "¡Empate!", "#FFD700"
 
-    # Efectos solo la primera vez
-    if not st.session_state.fin_festejado:
-        play(SND_VICTORIA)
-        st.snow()  # ⭐ nieve/estrellas nativas — cubre toda la pantalla garantizado
+    # ── Efectos finales ──
+    # Usamos el número de cuadros como seed para que Streamlit detecte cambio real
+    # st.snow() corre siempre pero solo es visible la primera vez por el DOM nativo
+    play(SND_VICTORIA)
+    st.snow()
 
-        # Estrellas extra: explosión desde el centro con CSS
-        stars = '<div class="fx-layer">'
-        for _ in range(60):
-            tw    = random.randint(-700, 700)
-            th    = random.randint(-500, 500)
-            tr    = random.randint(0, 720)
-            delay = round(random.uniform(0, 0.7), 2)
-            stars += (
-                f'<div class="fx-star" style="--tw:{tw}px;--th:{th}px;--tr:{tr}deg;'
-                f'animation-delay:{delay}s;">⭐</div>'
-            )
-        stars += '</div>'
-        st.markdown(stars, unsafe_allow_html=True)
-        st.session_state.fin_festejado = True
+    # Estrellas CSS — explosión desde el centro, seed fijo por partida
+    _seed = juego["puntos"]["Tutu"] * 100 + juego["puntos"]["Abuelita"]
+    rng = random.Random(_seed)
+    stars = '<div class="fx-layer">'
+    for _ in range(60):
+        tw    = rng.randint(-700, 700)
+        th    = rng.randint(-500, 500)
+        tr    = rng.randint(0, 720)
+        delay = round(rng.uniform(0, 0.7), 2)
+        stars += (
+            f'<div class="fx-star" style="--tw:{tw}px;--th:{th}px;--tr:{tr}deg;'
+            f'animation-delay:{delay}s;">⭐</div>'
+        )
+    stars += '</div>'
+    st.markdown(stars, unsafe_allow_html=True)
 
     # Banner ganador
     st.markdown(f"""
@@ -408,6 +405,5 @@ if fin:
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("🔄 Nueva partida", type="primary", use_container_width=True):
         reiniciar()
-        st.session_state.pts_vistos    = 0
-        st.session_state.fin_festejado = False
+        st.session_state.pts_vistos = 0
         st.rerun()
