@@ -363,24 +363,23 @@ if fin:
     elif pa > pt: ganador, cg = "Abuelita", COLOR_ABUELITA
     else:         ganador, cg = "¡Empate!", "#FFD700"
 
-    # ── Efectos finales ──
-    # Usamos el número de cuadros como seed para que Streamlit detecte cambio real
-    # st.snow() corre siempre pero solo es visible la primera vez por el DOM nativo
+    # ── Efectos finales: globos + estrellas CSS ──
     play(SND_VICTORIA)
-    st.snow()
+    st.balloons()
 
-    # Estrellas CSS — explosión desde el centro, seed fijo por partida
+    # Estrellas CSS — explotan desde el centro hacia todos lados
     _seed = juego["puntos"]["Tutu"] * 100 + juego["puntos"]["Abuelita"]
-    rng = random.Random(_seed)
+    rng   = random.Random(_seed)
     stars = '<div class="fx-layer">'
-    for _ in range(60):
-        tw    = rng.randint(-700, 700)
-        th    = rng.randint(-500, 500)
+    for _ in range(80):
+        tw    = rng.randint(-800, 800)
+        th    = rng.randint(-600, 600)
         tr    = rng.randint(0, 720)
-        delay = round(rng.uniform(0, 0.7), 2)
+        delay = round(rng.uniform(0, 1.0), 2)
+        emoji = rng.choice(["⭐", "🌟", "✨", "💫"])
         stars += (
             f'<div class="fx-star" style="--tw:{tw}px;--th:{th}px;--tr:{tr}deg;'
-            f'animation-delay:{delay}s;">⭐</div>'
+            f'animation-delay:{delay}s;">{emoji}</div>'
         )
     stars += '</div>'
     st.markdown(stars, unsafe_allow_html=True)
