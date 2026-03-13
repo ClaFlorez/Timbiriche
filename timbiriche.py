@@ -212,6 +212,27 @@ def get_juego():
 juego = get_juego()
 
 # ────────────────────────────────────────────
+# TRACKING DE EFECTOS (por sesión, no global)
+# ────────────────────────────────────────────
+if "cuadros_vistos" not in st.session_state:
+    st.session_state.cuadros_vistos = 0
+if "fin_celebrado" not in st.session_state:
+    st.session_state.fin_celebrado = False
+
+# Si hubo reinicio, resetear contadores de sesión
+total_cuadros_ahora = len(juego["cuadros"])
+fin_ahora = total_cuadros_ahora == FILAS * COLS
+
+# Detectar nuevo cuadro → globos 🎈
+if total_cuadros_ahora > st.session_state.cuadros_vistos:
+    st.balloons()
+    st.session_state.cuadros_vistos = total_cuadros_ahora
+
+# Resetear celebración si se reinició la partida
+if total_cuadros_ahora == 0:
+    st.session_state.fin_celebrado = False
+
+# ────────────────────────────────────────────
 # LÓGICA DEL JUEGO
 # ────────────────────────────────────────────
 def registrar(tipo: str, r: int, c: int):
@@ -406,21 +427,76 @@ for r in range(FILAS + 1):
 # ────────────────────────────────────────────
 # PANTALLA FINAL
 # ────────────────────────────────────────────
-if fin:
+if fin_ahora:
     pt, pa = juego["puntos"]["Tutu"], juego["puntos"]["Abuelita"]
     if pt > pa:
-        ganador, emoji_g = "Tutu", "🏆"
+        ganador = "Tutu"
+        color_g = COLOR_TUTU
     elif pa > pt:
-        ganador, emoji_g = "Abuelita", "🏆"
+        ganador = "Abuelita"
+        color_g = COLOR_ABUELITA
     else:
-        ganador, emoji_g = "¡Empate!", "🤝"
+        ganador = None
+        color_g = "#FFD700"
 
-    play(SND_VICTORIA)
-    st.balloons()
-    st.markdown(
-        f"<div class='banner-fin'>{emoji_g} ¡Ganó {ganador}! · Tutu {pt} – {pa} Abuelita</div>",
-        unsafe_allow_html=True,
-    )
+    # Estrellas + sonido solo la primera vez que se detecta el fin
+    if not st.session_state.fin_celebrado:
+        play(SND_VICTORIA)
+        st.snow()
+        st.session_state.fin_celebrado = True
+
+    # Banner con corona y nombre del ganador
+    if ganador:
+        st.markdown(f"""
+        <div style="
+            text-align:center;
+            padding: 36px 20px 28px;
+            margin-top: 24px;
+            background: linear-gradient(135deg, {color_g}22, {color_g}08);
+            border: 2px solid {color_g}88;
+            border-radius: 20px;
+        ">
+            <div style="font-size:72px; line-height:1; margin-bottom:10px;">👑</div>
+            <div style="
+                font-size: 3rem;
+                font-weight: 900;
+                color: {color_g};
+                letter-spacing: -1px;
+                text-shadow: 0 0 30px {color_g}88;
+                animation: brillar 1.2s ease-in-out infinite alternate;
+            ">¡{ganador} ganó!</div>
+            <div style="
+                font-size: 1.3rem;
+                color: rgba(255,255,255,0.7);
+                margin-top: 12px;
+                font-weight: 600;
+            ">
+                {EMOJIS['Tutu']} Tutu <span style="color:white; font-size:1.6rem; font-weight:900;">{pt}</span>
+                &nbsp;–&nbsp;
+                <span style="color:white; font-size:1.6rem; font-weight:900;">{pa}</span> Abuelita {EMOJIS['Abuelita']}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown(f"""
+        <div style="
+            text-align:center; padding:36px 20px 28px; margin-top:24px;
+            background: linear-gradient(135deg, #FFD70022, #FFD70008);
+            border: 2px solid #FFD70088; border-radius:20px;
+        ">
+            <div style="font-size:72px; line-height:1; margin-bottom:10px;">🤝</div>
+            <div style="font-size:3rem; font-weight:900; color:#FFD700;">¡Empate!</div>
+            <div style="font-size:1.3rem; color:rgba(255,255,255,0.7); margin-top:12px; font-weight:600;">
+                {EMOJIS['Tutu']} Tutu <span style="color:white; font-size:1.6rem; font-weight:900;">{pt}</span>
+                &nbsp;–&nbsp;
+                <span style="color:white; font-size:1.6rem; font-weight:900;">{pa}</span> Abuelita {EMOJIS['Abuelita']}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
     if st.button("🔄 Nueva partida", type="primary", use_container_width=True):
         reiniciar()
+        st.session_state.cuadros_vistos = 0
+        st.session_state.fin_celebrado = False
         st.rerun()
