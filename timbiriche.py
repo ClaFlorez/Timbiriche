@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import numpy as np
 import math
 import wave
@@ -229,108 +230,70 @@ if nuevo_cuadro:
 if total_cuadros_ahora == 0:
     st.session_state.fin_celebrado = False
 
-# ── Efectos visuales: JS que escapa el iframe e inyecta en el body del padre ──
+# ── Efectos visuales con components.html (único método que ejecuta JS real en Streamlit) ──
 def lanzar_globos(seed: int):
-    """18 globos que suben desde abajo. Inyectados en window.parent.document para escapar el iframe."""
-    st.markdown(f"""
+    """22 globos suben desde abajo, inyectados en window.parent para cubrir toda la pantalla."""
+    components.html(f"""
     <script>
-    (function() {{
-        var doc = window.parent.document;
-        var old = doc.getElementById('fx_globos');
-        if (old) old.remove();
-
-        var style = doc.getElementById('fx_style_globos');
-        if (!style) {{
-            style = doc.createElement('style');
-            style.id = 'fx_style_globos';
-            style.textContent = `
-                @keyframes subirGlobo {{
-                    0%   {{ transform: translateY(0) rotate(-10deg); opacity:1; }}
-                    60%  {{ transform: translateY(-60vh) rotate(10deg) scale(1.15); opacity:1; }}
-                    100% {{ transform: translateY(-115vh) rotate(-6deg); opacity:0; }}
-                }}
-            `;
-            doc.head.appendChild(style);
-        }}
-
-        var wrap = doc.createElement('div');
-        wrap.id = 'fx_globos';
-        wrap.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:99999;overflow:hidden;';
-
-        var data = [{seed}];
-        var emojis = ['🎈'];
-        for (var i = 0; i < 22; i++) {{
-            var el = doc.createElement('div');
-            var left  = (i * 41 + i * i * 17 + {seed} * 3) % 100;
-            var delay = ((i * 190 + {seed}) % 2200) / 1000;
-            var dur   = 2.3 + (i % 5) * 0.35;
-            var size  = 22 + (i % 5) * 9;
-            el.textContent = '🎈';
-            el.style.cssText = `position:absolute;left:${{left}}%;bottom:-80px;font-size:${{size}}px;animation:subirGlobo ${{dur}}s ${{delay}}s ease-in forwards;`;
-            wrap.appendChild(el);
-        }}
-        doc.body.appendChild(wrap);
-
-        // Auto-limpiar después de 5s
-        setTimeout(function() {{ var w = doc.getElementById('fx_globos'); if(w) w.remove(); }}, 5000);
-    }})();
+    var doc = window.parent.document;
+    var old = doc.getElementById('fx_globos'); if(old) old.remove();
+    var st = doc.getElementById('fx_st_globos'); if(st) st.remove();
+    var s = doc.createElement('style'); s.id='fx_st_globos';
+    s.textContent = '@keyframes subirG{{0%{{transform:translateY(0) rotate(-12deg);opacity:1}}60%{{transform:translateY(-65vh) rotate(12deg) scale(1.1);opacity:1}}100%{{transform:translateY(-120vh) rotate(-5deg);opacity:0}}}}';
+    doc.head.appendChild(s);
+    var w = doc.createElement('div'); w.id='fx_globos';
+    w.style='position:fixed;inset:0;pointer-events:none;z-index:999999;overflow:hidden;';
+    for(var i=0;i<22;i++){{
+      var e=doc.createElement('span');
+      var left=(i*41+i*i*17+{seed}*3)%100;
+      var delay=((i*190+{seed})%2200)/1000;
+      var dur=2.4+(i%5)*0.3;
+      var sz=24+(i%5)*10;
+      e.textContent='🎈';
+      e.style='position:absolute;left:'+left+'%;bottom:-90px;font-size:'+sz+'px;animation:subirG '+dur+'s '+delay+'s ease-in forwards;';
+      w.appendChild(e);
+    }}
+    doc.body.appendChild(w);
+    setTimeout(function(){{var x=doc.getElementById('fx_globos');if(x)x.remove();}},5500);
     </script>
-    """, unsafe_allow_html=True)
+    """, height=0)
 
 def lanzar_estrellas():
-    """40 estrellas que caen desde arriba en toda la pantalla, en loop continuo."""
-    st.markdown(f"""
+    """50 estrellas caen en loop infinito cubriendo toda la pantalla."""
+    components.html("""
     <script>
-    (function() {{
-        var doc = window.parent.document;
-        var old = doc.getElementById('fx_estrellas');
-        if (old) old.remove();
-
-        var style = doc.getElementById('fx_style_estrellas');
-        if (!style) {{
-            style = doc.createElement('style');
-            style.id = 'fx_style_estrellas';
-            style.textContent = `
-                @keyframes caerEstrella {{
-                    0%   {{ transform: translateY(-80px) rotate(0deg);   opacity:0; }}
-                    8%   {{ opacity:1; }}
-                    88%  {{ opacity:1; }}
-                    100% {{ transform: translateY(105vh) rotate(400deg); opacity:0; }}
-                }}
-            `;
-            doc.head.appendChild(style);
-        }}
-
-        var wrap = doc.createElement('div');
-        wrap.id = 'fx_estrellas';
-        wrap.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:99999;overflow:hidden;';
-
-        var chars = ['⭐','🌟','✨','💫','⭐','🌟','✨','💫','🌟','✨'];
-        for (var i = 0; i < 50; i++) {{
-            var el  = doc.createElement('div');
-            var left  = (i * 43 + i * 7) % 100;
-            var delay = ((i * 130) % 4000) / 1000;
-            var dur   = 2.2 + (i % 7) * 0.45;
-            var size  = 14 + (i % 6) * 9;
-            el.textContent = chars[i % chars.length];
-            el.style.cssText = `position:absolute;left:${{left}}%;top:-70px;font-size:${{size}}px;animation:caerEstrella ${{dur}}s ${{delay}}s linear infinite;`;
-            wrap.appendChild(el);
-        }}
-        doc.body.appendChild(wrap);
-    }})();
+    var doc = window.parent.document;
+    var old = doc.getElementById('fx_estrellas'); if(old) old.remove();
+    var st = doc.getElementById('fx_st_estrellas'); if(st) st.remove();
+    var s = doc.createElement('style'); s.id='fx_st_estrellas';
+    s.textContent = '@keyframes caerE{0%{transform:translateY(-90px) rotate(0deg);opacity:0}8%{opacity:1}88%{opacity:1}100%{transform:translateY(106vh) rotate(420deg);opacity:0}}';
+    doc.head.appendChild(s);
+    var w = doc.createElement('div'); w.id='fx_estrellas';
+    w.style='position:fixed;inset:0;pointer-events:none;z-index:999999;overflow:hidden;';
+    var chars=['⭐','🌟','✨','💫','🌟','✨','⭐','💫','🌟','✨'];
+    for(var i=0;i<50;i++){
+      var e=doc.createElement('span');
+      var left=(i*43+i*7)%100;
+      var delay=((i*130)%4000)/1000;
+      var dur=2.2+(i%7)*0.45;
+      var sz=16+(i%6)*9;
+      e.textContent=chars[i%chars.length];
+      e.style='position:absolute;left:'+left+'%;top:-80px;font-size:'+sz+'px;animation:caerE '+dur+'s '+delay+'s linear infinite;';
+      w.appendChild(e);
+    }
+    doc.body.appendChild(w);
     </script>
-    """, unsafe_allow_html=True)
+    """, height=0)
 
-def limpiar_estrellas():
-    st.markdown("""
+def limpiar_efectos():
+    components.html("""
     <script>
-    (function() {
-        var doc = window.parent.document;
-        var w = doc.getElementById('fx_estrellas'); if(w) w.remove();
-        var w2 = doc.getElementById('fx_globos');   if(w2) w2.remove();
-    })();
+    var doc = window.parent.document;
+    ['fx_globos','fx_estrellas','fx_st_globos','fx_st_estrellas'].forEach(function(id){
+      var el=doc.getElementById(id); if(el) el.remove();
+    });
     </script>
-    """, unsafe_allow_html=True)
+    """, height=0)
 
 if nuevo_cuadro and not fin_ahora:
     lanzar_globos(total_cuadros_ahora)
@@ -428,7 +391,7 @@ with st.sidebar:
     st.divider()
 
     if st.button("🔄 Reiniciar partida", use_container_width=True, type="primary"):
-        limpiar_estrellas()
+        limpiar_efectos()
         reiniciar()
         st.session_state.cuadros_vistos = 0
         st.session_state.fin_celebrado = False
@@ -602,7 +565,7 @@ if fin_ahora:
 
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("🔄 Nueva partida", type="primary", use_container_width=True):
-        limpiar_estrellas()
+        limpiar_efectos()
         reiniciar()
         st.session_state.cuadros_vistos = 0
         st.session_state.fin_celebrado = False
