@@ -219,18 +219,73 @@ if "cuadros_vistos" not in st.session_state:
 if "fin_celebrado" not in st.session_state:
     st.session_state.fin_celebrado = False
 
-# Si hubo reinicio, resetear contadores de sesión
 total_cuadros_ahora = len(juego["cuadros"])
 fin_ahora = total_cuadros_ahora == FILAS * COLS
 
-# Detectar nuevo cuadro → globos 🎈
-if total_cuadros_ahora > st.session_state.cuadros_vistos:
-    st.balloons()
+nuevo_cuadro = total_cuadros_ahora > st.session_state.cuadros_vistos
+if nuevo_cuadro:
     st.session_state.cuadros_vistos = total_cuadros_ahora
 
-# Resetear celebración si se reinició la partida
 if total_cuadros_ahora == 0:
     st.session_state.fin_celebrado = False
+
+# ── Globos CSS/JS: se inyectan con un key único para que cada cuadro dispare la animación ──
+def lanzar_globos(n_cuadros: int):
+    colores = ["#6A4CFF","#E05B20","#FFD700","#FF4F8B","#00E5FF","#7FFF00","#FF6B6B"]
+    globos_html = ""
+    for i in range(18):
+        left  = (i * 37 + i * i * 13) % 100
+        delay = round((i * 0.18) % 2.2, 2)
+        dur   = round(2.4 + (i % 5) * 0.3, 2)
+        color = colores[i % len(colores)]
+        size  = 24 + (i % 4) * 8
+        globos_html += f"""
+        <div style="
+            position:fixed; left:{left}%; bottom:-120px;
+            font-size:{size}px; animation:subirGlobo {dur}s {delay}s ease-in forwards;
+            z-index:9999; pointer-events:none; user-select:none;
+        ">🎈</div>"""
+    st.markdown(f"""
+    <style>
+    @keyframes subirGlobo {{
+        0%   {{ transform: translateY(0) rotate(-8deg); opacity:1; }}
+        50%  {{ transform: translateY(-55vh) rotate(8deg) scale(1.1); opacity:1; }}
+        100% {{ transform: translateY(-110vh) rotate(-5deg); opacity:0; }}
+    }}
+    </style>
+    <div id="globos_{n_cuadros}">{globos_html}</div>
+    """, unsafe_allow_html=True)
+
+def lanzar_estrellas():
+    chars = ["⭐","🌟","✨","💫","⭐","🌟","✨","💫","⭐","🌟"]
+    items = ""
+    for i in range(40):
+        left  = (i * 43 + i * 7) % 100
+        delay = round((i * 0.12) % 3.5, 2)
+        dur   = round(2.5 + (i % 6) * 0.4, 2)
+        size  = 16 + (i % 5) * 8
+        ch    = chars[i % len(chars)]
+        items += f"""
+        <div style="
+            position:fixed; left:{left}%; top:-60px;
+            font-size:{size}px;
+            animation:caerEstrella {dur}s {delay}s linear forwards;
+            z-index:9999; pointer-events:none; user-select:none;
+        ">{ch}</div>"""
+    st.markdown(f"""
+    <style>
+    @keyframes caerEstrella {{
+        0%   {{ transform: translateY(0) rotate(0deg);   opacity:0; }}
+        10%  {{ opacity:1; }}
+        90%  {{ opacity:1; }}
+        100% {{ transform: translateY(105vh) rotate(360deg); opacity:0; }}
+    }}
+    </style>
+    <div id="estrellas_fin">{items}</div>
+    """, unsafe_allow_html=True)
+
+if nuevo_cuadro and not fin_ahora:
+    lanzar_globos(total_cuadros_ahora)
 
 # ────────────────────────────────────────────
 # LÓGICA DEL JUEGO
@@ -442,8 +497,10 @@ if fin_ahora:
     # Estrellas + sonido solo la primera vez que se detecta el fin
     if not st.session_state.fin_celebrado:
         play(SND_VICTORIA)
-        st.snow()
+        lanzar_estrellas()
         st.session_state.fin_celebrado = True
+    else:
+        lanzar_estrellas()  # seguir mostrando mientras esté en pantalla
 
     # Banner con corona y nombre del ganador
     if ganador:
