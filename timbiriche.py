@@ -10,17 +10,17 @@ from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(page_title="Timbiriche ✨ Tutu vs Abuelita", layout="wide")
 
-# Sincronización cada 2 segundos
+# Sincronización constante entre dispositivos
 st_autorefresh(interval=2000, key="datarefresh")
 
 # ────────────────────────────────────────────
-# CSS PROFESIONAL Y RESPONSIVE (CELULAR + PC)
+# CSS MAESTRO (RESPONSIVE + FIXED TABLERO)
 # ────────────────────────────────────────────
 st.markdown("""
 <style>
 .stApp { background: radial-gradient(ellipse at 20% 0%, #0d1b3e 0%, #020814 55%, #01040d 100%); }
 
-/* --- MAGIA PARA CELULAR: FORZAR FILA ÚNICA --- */
+/* --- MAGIA RESPONSIVE: Forzar fila única en cualquier pantalla --- */
 div[data-testid="stHorizontalBlock"] {
     display: flex !important;
     flex-direction: row !important;
@@ -38,36 +38,44 @@ div[data-testid="stHorizontalBlock"] {
 }
 
 /* Puntos y Líneas adaptables */
-.punto { display:flex; align-items:center; justify-content:center; height:45px; width:100%; font-size:16px; color:white; }
+.punto { display:flex; align-items:center; justify-content:center; height:45px; width:100%; font-size:16px; color:white; font-weight:bold; }
 
-.linea-h-tutu::before { content:""; display:block; width:100%; border-top:6px solid #6A4CFF; border-radius:10px; box-shadow: 0 0 10px #6A4CFF; }
-.linea-h-abuelita::before { content:""; display:block; width:100%; border-top:6px solid #E05B20; border-radius:10px; box-shadow: 0 0 10px #E05B20; }
+/* Líneas Neón Gruesas (8px) */
+.linea-h-tutu::before { content:""; display:block; width:100%; border-top:8px solid #6A4CFF; border-radius:10px; box-shadow: 0 0 15px #6A4CFF; }
+.linea-h-abuelita::before { content:""; display:block; width:100%; border-top:8px solid #E05B20; border-radius:10px; box-shadow: 0 0 15px #E05B20; }
 
 .linea-v-tutu, .linea-v-abuelita { display:flex; justify-content:center; height:45px; width:100%; }
-.linea-v-tutu::before { content:""; display:block; height:100%; border-left:6px solid #6A4CFF; border-radius:10px; box-shadow: 0 0 10px #6A4CFF; }
-.linea-v-abuelita::before { content:""; display:block; height:100%; border-left:6px solid #E05B20; border-radius:10px; box-shadow: 0 0 10px #E05B20; }
+.linea-v-tutu::before { content:""; display:block; height:100%; border-left:8px solid #6A4CFF; border-radius:10px; box-shadow: 0 0 15px #6A4CFF; }
+.linea-v-abuelita::before { content:""; display:block; height:100%; border-left:8px solid #E05B20; border-radius:10px; box-shadow: 0 0 15px #E05B20; }
 
-.cuadro-tutu { background: linear-gradient(135deg, #6A4CFF 0%, #4F46D7 100%); height:45px; width:100%; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:16px; }
-.cuadro-abuelita { background: linear-gradient(135deg, #E05B20 0%, #9A3D10 100%); height:45px; width:100%; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:16px; }
+/* Cuadros Conquistados */
+.cuadro-tutu { background: linear-gradient(135deg, #6A4CFF 0%, #4F46D7 100%); height:45px; width:100%; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:18px; }
+.cuadro-abuelita { background: linear-gradient(135deg, #E05B20 0%, #9A3D10 100%); height:45px; width:100%; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:18px; }
 
-/* Botones del tablero */
-button[kind="secondary"] { width:100% !important; height:45px !important; background:transparent !important; border:1px solid rgba(255,255,255,0.1) !important; color:transparent !important; margin:0 !important; }
+/* Botones invisibles pero con tamaño fijo para que no salte el tablero */
+button[kind="secondary"] { 
+    width:100% !important; height:45px !important; 
+    background:transparent !important; 
+    border:1px solid rgba(255,255,255,0.05) !important; 
+    color:transparent !important; margin:0 !important; 
+}
 
-/* Corona y Estrellas */
-.corona-final { font-size: 80px; text-align: center; display: block; margin-top: 20px; }
-.texto-ganador { font-size: 32px; font-weight: 900; text-align: center; color: #FFD700; text-shadow: 0 0 20px #FFD700; }
+/* Efectos Finales */
+.corona-final { font-size: 100px; text-align: center; margin: 10px 0; }
+.texto-ganador { font-size: 45px; font-weight: 900; text-align: center; color: #FFD700; text-shadow: 0 0 30px #FFD700; }
 
+/* Capa de Estrellas ⭐ */
 .fx-layer { position: fixed; inset: 0; pointer-events: none; z-index: 9999; overflow: hidden; }
-.star-fx { position: absolute; font-size: 25px; animation: volar 2.5s ease-out forwards; top: 50%; left: 50%; }
+.star-fx { position: absolute; font-size: 30px; animation: volar 3s ease-out forwards; top: 50%; left: 50%; }
 @keyframes volar {
     0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
-    100% { transform: translate(var(--tw), var(--th)) rotate(var(--tr)) scale(1.5); opacity: 0; }
+    100% { transform: translate(var(--tw), var(--th)) rotate(var(--tr)) scale(2); opacity: 0; }
 }
 </style>
 """, unsafe_allow_html=True)
 
 # ────────────────────────────────────────────
-# AUDIO Y ESTADO
+# AUDIO
 # ────────────────────────────────────────────
 @st.cache_data
 def _gen_audio(frec):
@@ -82,6 +90,9 @@ def _gen_audio(frec):
 SND_CUADRO = _gen_audio(1000)
 SND_VICTORIA = _gen_audio(523)
 
+# ────────────────────────────────────────────
+# ESTADO COMPARTIDO
+# ────────────────────────────────────────────
 @st.cache_resource
 def get_juego():
     return {
@@ -96,7 +107,7 @@ juego = get_juego()
 if "p_locales" not in st.session_state: st.session_state.p_locales = 0
 if "fin_visto" not in st.session_state: st.session_state.fin_visto = False
 
-# Globos al anotar
+# Lanzar globos nativos al anotar
 total = sum(juego["puntos"].values())
 if total > st.session_state.p_locales:
     st.balloons()
@@ -104,7 +115,7 @@ if total > st.session_state.p_locales:
     st.session_state.p_locales = total
 
 # ────────────────────────────────────────────
-# LÓGICA Y TABLERO
+# LÓGICA DE REGISTRO
 # ────────────────────────────────────────────
 def registrar(tipo, r, c):
     h, v = juego["lineas_h"], juego["lineas_v"]
@@ -121,60 +132,77 @@ def registrar(tipo, r, c):
                     ok = True
     if not ok: juego["turno"] = "Abuelita" if jug == "Tutu" else "Tutu"
 
+# ────────────────────────────────────────────
+# SIDEBAR
+# ────────────────────────────────────────────
 with st.sidebar:
     st.title("⚙️ Jugador")
-    usuario = st.radio("¿Quién eres?", ["Tutu", "Abuelita"], horizontal=True)
+    usuario = st.radio("¿Quién eres tú?", ["Tutu", "Abuelita"], horizontal=True)
     st.divider()
     st.write(f"### Turno de: **{juego['turno']}**")
-    st.write(f"🔵 Tutu: {juego['puntos']['Tutu']} | 🔴 Abuelita: {juego['puntos']['Abuelita']}")
-    if st.button("🔄 Reiniciar"):
+    st.metric("🔵 Tutu", f"{juego['puntos']['Tutu']} pts")
+    st.metric("🔴 Abuelita", f"{juego['puntos']['Abuelita']} pts")
+    if st.button("🔄 Reiniciar Partida", type="primary", use_container_width=True):
         juego["puntos"] = {"Tutu": 0, "Abuelita": 0}; juego["cuadros"].clear()
         juego["lineas_h"].fill(False); juego["lineas_v"].fill(False)
         st.session_state.p_locales = 0; st.session_state.fin_visto = False
         st.rerun()
 
+# ────────────────────────────────────────────
+# TABLERO ADAPTATIVO
+# ────────────────────────────────────────────
 st.title("🕹️ Timbiriche")
 fin = len(juego["cuadros"]) == 16
 es_mi_turno = (usuario == juego["turno"]) and not fin
 
-# Dibujar Tablero adaptativo
+# Definir anchos de columna (1 para punto, 3 para línea)
 col_w = [1, 3, 1, 3, 1, 3, 1, 3, 1]
+
 for r in range(5):
+    # Filas Horizontales
     cols = st.columns(col_w)
     for c in range(4):
         cols[c*2].markdown("<div class='punto'>●</div>", unsafe_allow_html=True)
         if juego["lineas_h"][r, c]:
-            cl = f"linea-h-{'tutu' if juego['duenos_h'][r,c]=='Tutu' else 'abuelita'}"
-            cols[c*2+1].markdown(f"<div class='{cl}'></div>", unsafe_allow_html=True)
+            color = 'tutu' if juego['duenos_h'][r,c]=='Tutu' else 'abuelita'
+            cols[c*2+1].markdown(f"<div class='linea-h-{color}'></div>", unsafe_allow_html=True)
         else:
             if cols[c*2+1].button(" ", key=f"h{r}{c}", disabled=not es_mi_turno):
                 registrar("h", r, c); st.rerun()
     cols[8].markdown("<div class='punto'>●</div>", unsafe_allow_html=True)
 
+    # Filas Verticales y Cuadros
     if r < 4:
         cols_v = st.columns(col_w)
         for c in range(5):
             if juego["lineas_v"][r, c]:
-                cl = f"linea-v-{'tutu' if juego['duenos_v'][r,c]=='Tutu' else 'abuelita'}"
-                cols_v[c*2].markdown(f"<div class='{cl}'></div>", unsafe_allow_html=True)
+                color = 'tutu' if juego['duenos_v'][r,c]=='Tutu' else 'abuelita'
+                cols_v[c*2].markdown(f"<div class='linea-v-{color}'></div>", unsafe_allow_html=True)
             else:
                 if cols_v[c*2].button(" ", key=f"v{r}{c}", disabled=not es_mi_turno):
                     registrar("v", r, c); st.rerun()
+            
             if c < 4:
                 if (r, c) in juego["cuadros"]:
                     own = juego["cuadros"][(r, c)]
                     cols_v[c*2+1].markdown(f"<div class='cuadro-{'tutu' if own=='Tutu' else 'abuelita'}'>{own[0]}</div>", unsafe_allow_html=True)
-                else: cols_v[c*2+1].markdown("<div style='height:45px;'></div>", unsafe_allow_html=True)
+                else:
+                    cols_v[c*2+1].markdown("<div style='height:45px;'></div>", unsafe_allow_html=True)
 
-# Final con Estrellas ⭐
+# ────────────────────────────────────────────
+# FINAL CON CORONA Y ESTRELLAS ⭐
+# ────────────────────────────────────────────
 if fin:
     if not st.session_state.fin_visto:
         st.markdown(f'<audio autoplay style="display:none;"><source src="data:audio/wav;base64,{SND_VICTORIA}"></audio>', unsafe_allow_html=True)
+        # Explosión de estrellas ⭐
         fx = '<div class="fx-layer">'
-        for _ in range(60):
-            fx += f'<div class="star-fx" style="--tw:{random.randint(-400,400)}px; --th:{random.randint(-400,400)}px; --tr:{random.randint(0,720)}deg;">⭐</div>'
+        for _ in range(65):
+            fx += f'<div class="star-fx" style="--tw:{random.randint(-500,500)}px; --th:{random.randint(-500,500)}px; --tr:{random.randint(0,720)}deg;">⭐</div>'
         st.markdown(fx + '</div>', unsafe_allow_html=True)
         st.session_state.fin_visto = True
     
-    gan = "Tutu" if juego["puntos"]["Tutu"] > juego["puntos"]["Abuelita"] else "Abuelita"
-    st.markdown(f'<div class="corona-final">👑</div><div class="texto-ganador">¡GANÓ {gan.upper()}!</div>', unsafe_allow_html=True)
+    ganador = "Tutu" if juego["puntos"]["Tutu"] > juego["puntos"]["Abuelita"] else "Abuelita"
+    if juego["puntos"]["Tutu"] == juego["puntos"]["Abuelita"]: ganador = "Empate"
+    
+    st.markdown(f'<div class="corona-final">👑</div><div class="texto-ganador">¡GANÓ {ganador.upper()}!</div>', unsafe_allow_html=True)
