@@ -161,7 +161,7 @@ div[data-testid="stHorizontalBlock"] {{
 # ────────────────────────────────────────────
 # AUTO-REFRESH cada 2 s (multiplayer sync)
 # ────────────────────────────────────────────
-st_autorefresh(interval=2000, key="datarefresh")
+st_autorefresh(interval=8000, key="datarefresh")
 
 # ────────────────────────────────────────────
 # AUDIO
