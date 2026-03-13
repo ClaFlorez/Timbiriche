@@ -259,29 +259,30 @@ def lanzar_globos(seed: int):
     """, height=0)
 
 def lanzar_estrellas():
-    """50 estrellas caen en loop infinito cubriendo toda la pantalla."""
+    """50 estrellas caen una sola vez (forwards) y se autolimpian a los 10s."""
     components.html("""
     <script>
     var doc = window.parent.document;
-    var old = doc.getElementById('fx_estrellas'); if(old) old.remove();
-    var st = doc.getElementById('fx_st_estrellas'); if(st) st.remove();
-    var s = doc.createElement('style'); s.id='fx_st_estrellas';
-    s.textContent = '@keyframes caerE{0%{transform:translateY(-90px) rotate(0deg);opacity:0}8%{opacity:1}88%{opacity:1}100%{transform:translateY(106vh) rotate(420deg);opacity:0}}';
-    doc.head.appendChild(s);
-    var w = doc.createElement('div'); w.id='fx_estrellas';
+    if(doc.getElementById('fx_estrellas')) return;
+    var s = doc.getElementById('fx_st_estrellas');
+    if(!s){ s=doc.createElement('style'); s.id='fx_st_estrellas';
+      s.textContent='@keyframes caerE{0%{transform:translateY(-90px) rotate(0deg);opacity:0}8%{opacity:1}88%{opacity:1}100%{transform:translateY(106vh) rotate(420deg);opacity:0}}';
+      doc.head.appendChild(s); }
+    var w=doc.createElement('div'); w.id='fx_estrellas';
     w.style='position:fixed;inset:0;pointer-events:none;z-index:999999;overflow:hidden;';
     var chars=['⭐','🌟','✨','💫','🌟','✨','⭐','💫','🌟','✨'];
     for(var i=0;i<50;i++){
       var e=doc.createElement('span');
       var left=(i*43+i*7)%100;
-      var delay=((i*130)%4000)/1000;
-      var dur=2.2+(i%7)*0.45;
+      var delay=((i*130)%4500)/1000;
+      var dur=2.5+(i%7)*0.45;
       var sz=16+(i%6)*9;
       e.textContent=chars[i%chars.length];
-      e.style='position:absolute;left:'+left+'%;top:-80px;font-size:'+sz+'px;animation:caerE '+dur+'s '+delay+'s linear infinite;';
+      e.style='position:absolute;left:'+left+'%;top:-80px;font-size:'+sz+'px;animation:caerE '+dur+'s '+delay+'s linear forwards;';
       w.appendChild(e);
     }
     doc.body.appendChild(w);
+    setTimeout(function(){ var x=doc.getElementById('fx_estrellas'); if(x)x.remove(); }, 10000);
     </script>
     """, height=0)
 
@@ -508,11 +509,11 @@ if fin_ahora:
         ganador = None
         color_g = "#FFD700"
 
-    # Estrellas + sonido solo la primera vez que se detecta el fin
+    # Estrellas + sonido solo la primera vez
     if not st.session_state.fin_celebrado:
         play(SND_VICTORIA)
+        lanzar_estrellas()
         st.session_state.fin_celebrado = True
-    lanzar_estrellas()
 
     # Banner con corona y nombre del ganador
     if ganador:
