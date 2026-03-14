@@ -217,4 +217,3 @@ col1, col2, col3 = st.columns([1, 2, 1])
 if col2.button("✨ Reiniciar Magia ✨", use_container_width=True):
     st.session_state.clear()
     st.rerun()
-   
