@@ -113,7 +113,9 @@ La aplicación no solicita cuentas, correos electrónicos ni perfiles personales
 
 ## Créditos y herramientas
 
-Este proyecto fue creado y desarrollado con apoyo de herramientas de inteligencia artificial: **OpenAI Codex**, **Antigravity** y **Google Gemini**. La imagen y su composición visual se trabajaron con **Canva** junto con **Gemini**.
+Este proyecto fue creado y desarrollado con apoyo de herramientas de inteligencia artificial: **OpenAI Codex**, **Antigravity** y **Google Gemini**. La imagen y su composición visual se trabajaron con **Canva** junto con **Gemini**. El efecto de acierto fue generado con **ElevenLabs Sound Effects** y la música `Joyful Focus` con **ElevenLabs Music**.
+
+La procedencia conocida y el estado de licencia de los recursos se documentan en [PROCEDENCIA_DE_ACTIVOS.md](PROCEDENCIA_DE_ACTIVOS.md).
 
 ## Estado
 
