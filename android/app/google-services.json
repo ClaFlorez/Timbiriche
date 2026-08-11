@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "506321924173",
+    "project_id": "timbiriche-magico",
+    "storage_bucket": "timbiriche-magico.firebasestorage.app",
+    "firebase_url": "https://timbiriche-magico-default-rtdb.firebaseio.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:506321924173:android:4b1e784d77beab444e6c04",
+        "android_client_info": {
+          "package_name": "com.example.timbiriche_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClNz0F6soAfmFoPPsmBqpTNvQXeRUQAe4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

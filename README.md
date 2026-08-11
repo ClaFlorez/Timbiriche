@@ -1,64 +1,122 @@
-# 🕹️ Timbiriche Multiplayer: Tutu vs Abuelita (Edición Estelar ✨)
+# Timbiriche con Tutu
 
 <p align="center">
-  <!-- Reemplaza esta ruta por la de tu logo real en el repo -->
-  <img src="timbiriche.JPG" alt="Logo Claud-IA" width="620"/>
+  <img src="assets/images/app_icon_v2.png" alt="Icono de Timbiriche con Tutu" width="180">
 </p>
 
-¡Bienvenido a la versión definitiva de **Timbiriche Pro**! Este proyecto transforma el clásico juego de puntos y líneas en una experiencia digital competitiva, diseñada para que **Tutu** y su **Abuelita** jueguen en tiempo real con efectos visuales de alta calidad.
+<p align="center">
+  Un juego familiar de puntos y cuadros para compartir momentos, en el mismo dispositivo o a distancia.
+</p>
 
-## 🚀 Innovaciones Técnicas
-Para lograr esta experiencia en **Streamlit**, implementamos soluciones avanzadas de desarrollo web:
+## Acerca del proyecto
 
-* **Sincronización en Tiempo Real:** Uso de `@st.cache_resource` y `st_autorefresh` para que los movimientos se reflejen en ambos dispositivos cada 2 segundos.
-* **Diseño 100% Responsivo:** Implementación de CSS con `flex-wrap: nowrap` y unidades adaptables para que el tablero mantenga su forma perfecta tanto en computadoras como en teléfonos móviles.
-* **Interfaz "Zero-Jump":** Estructura rígida que evita que el tablero se mueva o cambie de tamaño al marcar las líneas.
-* **Sistema de Identidad:** Selector de jugador que bloquea el tablero cuando no es tu turno, evitando errores o jugadas dobles.
+**Timbiriche con Tutu** transforma el clásico juego de puntos y cuadros en una experiencia cálida, colorida y accesible. Fue diseñado para que Tutu y su familia puedan jugar desde una tableta Windows, un celular o dos dispositivos conectados mediante una sala privada.
+
+Esta versión 2.0 reemplaza la implementación original en Python con una aplicación Flutter multiplataforma y una interfaz completamente renovada.
+
+## Características
+
+- Juego local para dos personas que se turnan en un mismo dispositivo.
+- Salas en línea sincronizadas con Firebase Realtime Database.
+- Guardado automático para continuar una partida posteriormente.
+- Interfaz adaptable para celulares y tabletas Windows, en vertical u horizontal.
+- Tablero de 6 × 6 cuadros con líneas de alto contraste.
+- Mensajes, sonido y explosión de confeti al completar un cuadro.
+- Mariposas animadas y lluvia de globos multicolores al finalizar.
+- Música ambiental opcional.
+- Compatibilidad preparada para Android, iOS y Windows.
+
+## Experiencia visual
+
+La identidad utiliza una paleta violeta, coral y turquesa. El icono representa a Tutu y su compañera de juego unidas por el tablero. Las animaciones celebran cada jugada sin bloquear las áreas táctiles.
+
+## Tecnologías
+
+- Flutter y Dart
+- Material 3
+- Provider para estado reactivo
+- Firebase Core y Realtime Database
+- Shared Preferences para persistencia local
+- Audioplayers y Confetti para efectos multimedia
+
+## Estructura principal
+
+```text
+lib/
+├── app_theme.dart        # Colores, tipografía y componentes visuales
+├── game_logic.dart       # Reglas, turnos, puntuación y serialización
+├── game_grid.dart        # Tablero interactivo adaptable
+├── game_screen.dart      # Experiencia principal y modos de juego
+├── game_storage.dart     # Guardado y recuperación local
+├── firebase_service.dart # Sincronización de salas
+└── magic_effects.dart    # Mariposas y efectos animados
+```
+
+## Instalación
+
+Requisitos:
+
+- Flutter con Dart 3.10 o posterior.
+- Visual Studio con “Desktop development with C++” para Windows.
+- Android Studio o un dispositivo Android para compilar el APK.
+
+```bash
+git clone https://github.com/ClaFlorez/Timbiriche.git
+cd Timbiriche
+flutter pub get
+```
+
+### Configuración de Firebase
+
+El repositorio contiene únicamente la configuración pública de cliente necesaria para compilar. Para conectar una bifurcación a otro proyecto Firebase:
+
+```bash
+dart pub global activate flutterfire_cli
+flutterfire configure
+```
+
+El modo **Jugar juntas** funciona localmente sin iniciar una sala.
+
+## Ejecución
+
+Windows:
+
+```bash
+flutter run -d windows
+```
+
+Android conectado:
+
+```bash
+flutter devices
+flutter run -d <ID_DEL_DISPOSITIVO>
+```
+
+Generar un APK:
+
+```bash
+flutter build apk --release
+```
+
+## Calidad
+
+```bash
+flutter analyze
+flutter test
+```
+
+La suite cubre la restauración de partidas, la última caja del tablero y diseños de celular y tableta Windows.
+
+## Privacidad
+
+La aplicación no solicita cuentas, correos electrónicos ni perfiles personales. Las partidas en línea se identifican mediante un código de sala compartido entre las personas participantes.
+
+## Estado
+
+Versión actual: **2.0.0**
+
+Consulta [CHANGELOG.md](CHANGELOG.md) para ver el historial detallado.
 
 ---
 
-## ✨ Características Especiales
-
-### 🎨 Estética Neón y Moderna
-* **Líneas de 8px:** Trazos gruesos con efectos de brillo (Glow) en Púrpura y Naranja.
-* **Animaciones Pop:** Los cuadros conquistados aparecen con un efecto visual elástico.
-* **Fondo Dinámico:** Gradiente radial profundo para una atmósfera de juego nocturno.
-
-### 🎊 Efectos de Celebración
-* **Globos de Punto:** Lluvia de globos cada vez que un jugador completa un cuadro.
-* **Explosión Estelar ⭐:** Al finalizar, 80 estrellas doradas vuelan desde el centro de la pantalla celebrando al ganador.
-* **Corona Real 👑:** Un panel final gigante con el nombre del campeón y el marcador definitivo.
-
-### 🔊 Paisaje Sonoro
-* Generación de audio en tiempo real para sonidos de clic, cierre de cuadro y fanfarria de victoria.
-
----
-
-## 🛠️ Instalación y Uso (Anaconda)
-
-Si quieres ejecutar este juego localmente o seguir desarrollándolo:
-
-1.  **Crea el entorno:**
-    ```bash
-    conda create --name timbiriche python=3.10
-    conda activate timbiriche
-    ```
-2.  **Instala las dependencias:**
-    ```bash
-    pip install streamlit numpy streamlit-autorefresh
-    ```
-3.  **Lanza el juego:**
-    ```bash
-    streamlit run timbiriche.py
-    ```
-
----
-
-## 📖 Reglas del Juego
-1.  **Selecciona tu bando:** En la barra lateral, elige si eres **Tutu** o la **Abuelita**.
-2.  **Marca líneas:** Haz clic en los espacios grises entre los puntos.
-3.  **Repite turno:** Si cierras un cuadro, sumas un punto y ¡tienes un tiro extra!
-4.  **Gana el mejor:** Al completar los 16 cuadros, el sistema coronará al ganador.
-
----
-*Desarrollado con ❤️ para demostrar que la tecnología no tiene edad cuando se trata de divertirse en familia.*
+Diseñado con cariño por **claud·IA**.
