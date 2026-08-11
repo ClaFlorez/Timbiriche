@@ -117,6 +117,8 @@ Versión actual: **2.0.0**
 
 Consulta [CHANGELOG.md](CHANGELOG.md) para ver el historial detallado.
 
+Consulta [PROBLEMAS_ENCONTRADOS.md](PROBLEMAS_ENCONTRADOS.md) para resolver los problemas conocidos de compilación y distribución en Windows y Android.
+
 ---
 
 Diseñado con cariño por **claud·IA**.
