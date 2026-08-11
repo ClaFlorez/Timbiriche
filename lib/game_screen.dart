@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:confetti/confetti.dart';
@@ -24,6 +25,7 @@ class _GameScreenState extends State<GameScreen> {
   late final ConfettiController _winnerConfetti;
   late final AudioPlayer _audioPlayer;
   late final AudioPlayer _effectPlayer;
+  Timer? _musicStartTimer;
   final _roomController = TextEditingController();
   final _storage = GameStorage();
   TimbiricheGame? _game;
@@ -39,13 +41,17 @@ class _GameScreenState extends State<GameScreen> {
     super.initState();
     _captureConfetti = ConfettiController(duration: const Duration(seconds: 1));
     _winnerConfetti = ConfettiController(duration: const Duration(seconds: 5));
-    _audioPlayer = AudioPlayer()..setReleaseMode(ReleaseMode.loop);
+    _audioPlayer = AudioPlayer();
     _effectPlayer = AudioPlayer();
-    _playMusic();
+    // Delay audio init slightly on Windows to avoid threading crash
+    _musicStartTimer = Timer(const Duration(milliseconds: 500), () {
+      if (mounted) _playMusic();
+    });
   }
 
   Future<void> _playMusic() async {
     try {
+      await _audioPlayer.setReleaseMode(ReleaseMode.loop);
       await _audioPlayer.play(AssetSource('audio/joyful_bgm.mp3'), volume: .2);
     } catch (error) {
       debugPrint('No se pudo iniciar la música: $error');
@@ -125,6 +131,7 @@ class _GameScreenState extends State<GameScreen> {
     _game?.removeListener(_onGameChanged);
     _captureConfetti.dispose();
     _winnerConfetti.dispose();
+    _musicStartTimer?.cancel();
     _audioPlayer.dispose();
     _effectPlayer.dispose();
     _roomController.dispose();
@@ -754,37 +761,20 @@ class _BoardCard extends StatelessWidget {
       child: Column(
         children: [
           Consumer<TimbiricheGame>(
-            builder: (_, game, _) => AnimatedSwitcher(
-              duration: const Duration(milliseconds: 250),
-              layoutBuilder: (currentChild, previousChildren) {
-                return Stack(
-                  alignment: Alignment.center,
-                  clipBehavior: Clip.antiAlias,
-                  children: [
-                    ...previousChildren,
-                    if (currentChild != null) currentChild,
-                  ],
-                );
-              },
-              transitionBuilder: (child, animation) {
-                return FadeTransition(opacity: animation, child: child);
-              },
-              child: Text(
-                game.lastWinnerMessage ??
-                    'Une dos puntos. Si cierras un cuadro, vuelves a jugar.',
-                key: ValueKey(game.lastWinnerMessage),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: game.lastWinnerMessage == null
-                      ? AppColors.muted
-                      : AppColors.violetDark,
-                  fontWeight: game.lastWinnerMessage == null
-                      ? FontWeight.w500
-                      : FontWeight.w800,
-                  fontSize: 13,
-                ),
+            builder: (_, game, _) => Text(
+              game.lastWinnerMessage ??
+                  'Une dos puntos. Si cierras un cuadro, vuelves a jugar.',
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: game.lastWinnerMessage == null
+                    ? AppColors.muted
+                    : AppColors.violetDark,
+                fontWeight: game.lastWinnerMessage == null
+                    ? FontWeight.w500
+                    : FontWeight.w800,
+                fontSize: 13,
               ),
             ),
           ),
