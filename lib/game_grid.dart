@@ -155,8 +155,7 @@ class _LineTarget extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         child: ClipRect(
           child: Center(
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 220),
+            child: Container(
               width: horizontal ? double.infinity : 5,
               height: horizontal ? 5 : double.infinity,
               margin: horizontal
