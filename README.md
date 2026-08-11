@@ -111,11 +111,17 @@ La suite cubre la restauración de partidas, la última caja del tablero y dise�
 
 La aplicación no solicita cuentas, correos electrónicos ni perfiles personales. Las partidas en línea se identifican mediante un código de sala compartido entre las personas participantes.
 
+## Créditos y herramientas
+
+Este proyecto fue creado y desarrollado con apoyo de herramientas de inteligencia artificial: **OpenAI Codex**, **Antigravity** y **Google Gemini**. La imagen y su composición visual se trabajaron con **Canva** junto con **Gemini**.
+
 ## Estado
 
 Versión actual: **2.0.0**
 
 Consulta [CHANGELOG.md](CHANGELOG.md) para ver el historial detallado.
+
+Consulta [PROBLEMAS_ENCONTRADOS.md](PROBLEMAS_ENCONTRADOS.md) para resolver los problemas conocidos de compilación y distribución en Windows y Android.
 
 ---
 
